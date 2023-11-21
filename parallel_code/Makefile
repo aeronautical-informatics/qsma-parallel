@@ -10,7 +10,7 @@ LDFLAGS = -lm
 INC =
 LIBS_PATH =
 
-C_FILES = emxapi_comm_ringbuf_fixed.c emxapi_comm_ringbuf_fixed_impl.c timestamp.c _emx_s_FLTA.c emxapi_comm_ringbuf_fixed_fork.c _emx_s_FLTA_STEP.c _emx_t_main.c
+C_FILES = emxapi_comm_ringbuf_fixed.c ert_main.c QSMA_TAWS.c emxapi_comm_ringbuf_fixed_impl.c timestamp.c Data.c _emx_s_FLTA.c bouncer.c emxapi_comm_ringbuf_fixed_fork.c _emx_s_FLTA_STEP.c _emx_t_main.c
 CPP_FILES = 
 H_FILES = emxapi_comm_ringbuf_fixed_fork.h _emx_main.h FLTA.h emxapi_defines.h emxapi_comm_ringbuf_config.h QSMA_TAWS_private.h Data.h errors.h timestamp.h QSMA_TAWS_types.h rtwtypes.h emxapi_comm_ringbuf_fixed.h FLTA_STEP.h QSMA_TAWS.h
 

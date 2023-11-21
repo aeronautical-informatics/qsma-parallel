@@ -306,12 +306,10 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 	
 	{
 		double StraightDis_p2 = Vground_p2 * LookAheadTime_p2;
-		point container_p2;
 		static Range path_p2[100];
+		point container_p2;
 		
-		EMX_Recv(3, 2, 8, -1, path_p2, 100 * sizeof(*path_p2));
-		
-		EMX_Recv(3, 2, 6, -1, &container_p2, sizeof(container_p2));
+		EMX_Recv(3, 2, 6, -1, path_p2, 100 * sizeof(*path_p2));
 		
 		{
 			double DeltaX_p2;
@@ -365,16 +363,12 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 				path_p2[i_p2].distance = Vground_p2 * i_p2;
 			}
 			
-			Slope_p2 = EMX_Recv64F(3, 2, 12, -1);
+			Slope_p2 = EMX_Recv64F(3, 2, 9, -1);
 			
 			
-			EMX_Send(2, 3, 11, -1, path_p2, 100 * sizeof(*path_p2));
+			EMX_Send(2, 3, 8, -1, path_p2, 100 * sizeof(*path_p2));
 			
-			EMX_Send(2, 3, 10, -1, &container_p2, sizeof(container_p2));
-			
-			EMX_Recv(3, 2, 7, -1, &container_p2, sizeof(container_p2));
-			
-			EMX_Recv(3, 2, 9, -1, path_p2, 100 * sizeof(*path_p2));
+			EMX_Recv(3, 2, 7, -1, path_p2, 100 * sizeof(*path_p2));
 			
 			for (int i_p2 = 1; i_p2 <= LookAheadTime_p2; i_p2 = i_p2 + 1) {
 				_Bool cond4_p2;
@@ -518,9 +512,7 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 		container_p3.Y = 0;
 		path_p3[0].center = container_p3;
 		
-		EMX_Send(3, 2, 8, -1, path_p3, 100 * sizeof(*path_p3));
-		
-		EMX_Send(3, 2, 6, -1, &container_p3, sizeof(container_p3));
+		EMX_Send(3, 2, 6, -1, path_p3, 100 * sizeof(*path_p3));
 		
 		{
 			int cond22_p3;
@@ -534,7 +526,7 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 			
 			cond3_p3 = 1;
 			
-			EMX_Send64F(3, 2, 12, -1, Slope_p3);
+			EMX_Send64F(3, 2, 9, -1, Slope_p3);
 			
 			if (cond22_p3) {
 				call_arg11_p3 = fabs(TrueTrack_p3);
@@ -544,9 +536,7 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 			
 			cond_p3 = cond3_p3;
 			
-			EMX_Recv(2, 3, 11, -1, path_p3, 100 * sizeof(*path_p3));
-			
-			EMX_Recv(2, 3, 10, -1, &container_p3, sizeof(container_p3));
+			EMX_Recv(2, 3, 8, -1, path_p3, 100 * sizeof(*path_p3));
 			
 			if (cond_p3) {
 				double ClearanceY_p3 = path_p3[0].center.Y + Clearance_p3;
@@ -619,15 +609,13 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 				path_p3[0].limit2 = container_p3;
 			}
 			
-			EMX_Send(3, 2, 7, -1, &container_p3, sizeof(container_p3));
-			
-			EMX_Send(3, 2, 9, -1, path_p3, 100 * sizeof(*path_p3));
+			EMX_Send(3, 2, 7, -1, path_p3, 100 * sizeof(*path_p3));
 		}
 	}
 }
 
 Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos position_p2, float YawRate_p2, float Clearance_p2) {
-	int8_t sync_p2;
+	_Bool sync_p2;
 	double rad_p2 = 3.14159265 / 180.0;
 	int call_arg_p2;
 	double PredY_p2 = 0;
@@ -662,13 +650,13 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 	
 	call_arg_p2 = CalculateLAT(Vground_p2);
 	
-	EMX_Send32(2, 3, 13, -1, call_arg_p2);
+	EMX_Send32(2, 3, 10, -1, call_arg_p2);
 	
 	Vground_p2 = Vground_p2 * 0.514444;
 	
-	LookAheadTime_p2 = EMX_Recv32(3, 2, 15, -1);
+	LookAheadTime_p2 = EMX_Recv32(3, 2, 12, -1);
 	
-	EMX_Send64F(2, 3, 14, -1, a_p2);
+	EMX_Send64F(2, 3, 11, -1, a_p2);
 	
 	{
 		point container_p2;
@@ -685,15 +673,15 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 			_Bool cond3_p2;
 			int cond_p2;
 			
-			EMX_Send64F(2, 3, 17, -1, theta_p2);
+			EMX_Send64F(2, 3, 14, -1, theta_p2);
 			
 			call_arg4_p2 = fabs(TrueTrack_p2);
 			
 			cond22_p2 = !(call_arg4_p2 == 90);
 			
-			cond3_p2 = EMX_Recv8(3, 2, 18, -1);
+			cond3_p2 = EMX_Recv8(3, 2, 15, -1);
 			
-			EMX_Send64F(2, 3, 16, -1, Radius_p2);
+			EMX_Send64F(2, 3, 13, -1, Radius_p2);
 			
 			if (cond22_p2) {
 				call_arg5_p2 = fabs(TrueTrack_p2);
@@ -777,7 +765,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 				double Slope_p2;
 				double DeltaSlope_p2;
 				
-				EMX_Send64F(2, 3, 19, -1, DeltaTheta_p2);
+				EMX_Send64F(2, 3, 16, -1, DeltaTheta_p2);
 				
 				call_arg20_p2 = 0.5 * DeltaTheta_p2;
 				
@@ -785,16 +773,16 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 				
 				chord_p2 = 2 * Radius_p2 * call_arg19_p2;
 				
-				Slope_p2 = EMX_Recv64F(3, 2, 22, -1);
+				Slope_p2 = EMX_Recv64F(3, 2, 19, -1);
 				
-				EMX_Send64F(2, 3, 21, -1, chord_p2);
+				EMX_Send64F(2, 3, 18, -1, chord_p2);
 				
-				DeltaSlope_p2 = EMX_Recv64F(3, 2, 20, -1);
+				DeltaSlope_p2 = EMX_Recv64F(3, 2, 17, -1);
 				
-				for (int i_p2 = 1; sync_p2 = (i_p2 <= LookAheadTime_p2), EMX_SendSync(2, 3, 33, -1, sync_p2), sync_p2; i_p2 = i_p2 + 1) {
-					EMX_Send64F(2, 3, 25, -1, DeltaSlope_p2);
+				for (int i_p2 = 1; sync_p2 = (i_p2 <= LookAheadTime_p2), EMX_SendSync(2, 3, 30, -1, sync_p2), sync_p2; i_p2 = i_p2 + 1) {
+					EMX_Send64F(2, 3, 22, -1, DeltaSlope_p2);
 					
-					EMX_Send64F(2, 3, 24, -1, PredX_p2);
+					EMX_Send64F(2, 3, 21, -1, PredX_p2);
 					
 					{
 						double DeltaY_p2;
@@ -802,7 +790,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 						
 						call_arg22_p2 = tan(DeltaSlope_p2);
 						
-						DeltaX_p2 = EMX_Recv64F(3, 2, 26, -1);
+						DeltaX_p2 = EMX_Recv64F(3, 2, 23, -1);
 						
 						DeltaY_p2 = call_arg22_p2 * (DeltaX_p2 - PredX_p2) + PredY_p2;
 						
@@ -811,7 +799,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 						DeltaSlope_p2 = DeltaSlope_p2 - DeltaTheta_p2;
 						Slope_p2 = Slope_p2 - DeltaTheta_p2;
 						
-						EMX_Send64F(2, 3, 23, -1, Slope_p2);
+						EMX_Send64F(2, 3, 20, -1, Slope_p2);
 						
 						{
 							double sol1Y_p2;
@@ -827,21 +815,21 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 							
 							call_arg27_p2 = pow(call_arg28_p2, 2.0);
 							
-							EMX_Send64F(2, 3, 28, -1, call_arg27_p2);
+							EMX_Send64F(2, 3, 25, -1, call_arg27_p2);
 							
-							EMX_Send64F(2, 3, 27, -1, call_arg25_p2);
+							EMX_Send64F(2, 3, 24, -1, call_arg25_p2);
 							
 							call_arg34_p2 = tan(Slope_p2);
 							
-							ClearanceX_p2 = EMX_Recv64F(3, 2, 31, -1);
+							ClearanceX_p2 = EMX_Recv64F(3, 2, 28, -1);
 							
 							sol1Y_p2 = call_arg34_p2 * (ClearanceX_p2 - DeltaX_p2) + DeltaY_p2;
 							
-							ClearanceX_p2 = EMX_Recv64F(3, 2, 32, -1);
+							ClearanceX_p2 = EMX_Recv64F(3, 2, 29, -1);
 							
-							sol2_p2 = EMX_Recv64F(3, 2, 30, -1);
+							sol2_p2 = EMX_Recv64F(3, 2, 27, -1);
 							
-							sol1_p2 = EMX_Recv64F(3, 2, 29, -1);
+							sol1_p2 = EMX_Recv64F(3, 2, 26, -1);
 							
 							{
 								double sol2Y_p2;
@@ -892,13 +880,13 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 	double call_arg30_p3;
 	double call_arg32_p3;
 	
-	call_arg_p3 = EMX_Recv32(2, 3, 13, -1);
+	call_arg_p3 = EMX_Recv32(2, 3, 10, -1);
 	
 	LookAheadTime_p3 = call_arg_p3;
 	
-	EMX_Send32(3, 2, 15, -1, LookAheadTime_p3);
+	EMX_Send32(3, 2, 12, -1, LookAheadTime_p3);
 	
-	a_p3 = EMX_Recv64F(2, 3, 14, -1);
+	a_p3 = EMX_Recv64F(2, 3, 11, -1);
 	
 	{
 		_Bool cond3_p3;
@@ -907,13 +895,13 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 		double Radius_p3;
 		double Yc_p3;
 		
-		theta_p3 = EMX_Recv64F(2, 3, 17, -1);
+		theta_p3 = EMX_Recv64F(2, 3, 14, -1);
 		
 		cond3_p3 = 1;
 		
-		EMX_Send8(3, 2, 18, -1, cond3_p3);
+		EMX_Send8(3, 2, 15, -1, cond3_p3);
 		
-		Radius_p3 = EMX_Recv64F(2, 3, 16, -1);
+		Radius_p3 = EMX_Recv64F(2, 3, 13, -1);
 		
 		call_arg3_p3 = tan(theta_p3);
 		
@@ -929,22 +917,22 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 			double Slope_p3;
 			double chord_p3;
 			
-			DeltaTheta_p3 = EMX_Recv64F(2, 3, 19, -1);
+			DeltaTheta_p3 = EMX_Recv64F(2, 3, 16, -1);
 			
 			DeltaSlope_p3 = 3.14159265 / 2.0 - a_p3 - DeltaTheta_p3 / 2.0;
 			
 			Slope_p3 = theta_p3;
 			
-			EMX_Send64F(3, 2, 22, -1, Slope_p3);
+			EMX_Send64F(3, 2, 19, -1, Slope_p3);
 			
-			chord_p3 = EMX_Recv64F(2, 3, 21, -1);
+			chord_p3 = EMX_Recv64F(2, 3, 18, -1);
 			
-			EMX_Send64F(3, 2, 20, -1, DeltaSlope_p3);
+			EMX_Send64F(3, 2, 17, -1, DeltaSlope_p3);
 			
-			for (int i_p3 = 1; EMX_RecvSync(2, 3, 33, -1); i_p3 = i_p3 + 1) {
-				DeltaSlope_p3 = EMX_Recv64F(2, 3, 25, -1);
+			for (int i_p3 = 1; EMX_RecvSync(2, 3, 30, -1); i_p3 = i_p3 + 1) {
+				DeltaSlope_p3 = EMX_Recv64F(2, 3, 22, -1);
 				
-				PredX_p3 = EMX_Recv64F(2, 3, 24, -1);
+				PredX_p3 = EMX_Recv64F(2, 3, 21, -1);
 				
 				{
 					double DeltaX_p3;
@@ -953,9 +941,9 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 					
 					DeltaX_p3 = PredX_p3 + chord_p3 * call_arg21_p3;
 					
-					EMX_Send64F(3, 2, 26, -1, DeltaX_p3);
+					EMX_Send64F(3, 2, 23, -1, DeltaX_p3);
 					
-					Slope_p3 = EMX_Recv64F(2, 3, 23, -1);
+					Slope_p3 = EMX_Recv64F(2, 3, 20, -1);
 					
 					{
 						double A2_p3;
@@ -971,9 +959,9 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 						
 						call_arg23_p3 = pow(call_arg24_p3, 2.0);
 						
-						call_arg27_p3 = EMX_Recv64F(2, 3, 28, -1);
+						call_arg27_p3 = EMX_Recv64F(2, 3, 25, -1);
 						
-						call_arg25_p3 = EMX_Recv64F(2, 3, 27, -1);
+						call_arg25_p3 = EMX_Recv64F(2, 3, 24, -1);
 						
 						A2_p3 = -2 * DeltaX_p3 - 2 * call_arg25_p3 * call_arg26_p3 * DeltaX_p3;
 						
@@ -995,15 +983,15 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 						
 						ClearanceX_p3 = sol1_p3;
 						
-						EMX_Send64F(3, 2, 31, -1, ClearanceX_p3);
+						EMX_Send64F(3, 2, 28, -1, ClearanceX_p3);
 						
 						ClearanceX_p3 = sol2_p3;
 						
-						EMX_Send64F(3, 2, 32, -1, ClearanceX_p3);
+						EMX_Send64F(3, 2, 29, -1, ClearanceX_p3);
 						
-						EMX_Send64F(3, 2, 30, -1, sol2_p3);
+						EMX_Send64F(3, 2, 27, -1, sol2_p3);
 						
-						EMX_Send64F(3, 2, 29, -1, sol1_p3);
+						EMX_Send64F(3, 2, 26, -1, sol1_p3);
 					}
 				}
 			}

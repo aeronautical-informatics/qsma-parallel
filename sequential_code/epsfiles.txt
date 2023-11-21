@@ -1,0 +1,7 @@
+**/*.* action=copy
+epsfiles.txt action=none
+**/*.ftl template=ftl
+**/*.c.ftl action=process
+**/*.c action=compile
+**/FLTA.c action=process
+**/FLTA_STEP.c action=process
