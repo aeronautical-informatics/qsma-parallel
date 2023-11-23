@@ -20,6 +20,7 @@
 #define PI 3.14159265
 #define HeightAboveNstAirport 140
 
+
 typedef struct {
     int id;
     float lon;
@@ -27,18 +28,18 @@ typedef struct {
 }Elevation;
 
 
-long double toRadians(const long double degree)
+double toRadians(const double degree)
 {
     // cmath library in C++
     // defines the constant
     // M_PI as the value of
     // pi accurate to 1e-30
-    long double one_deg = (PI) / 180;
+    double one_deg = (PI) / 180;
     return (one_deg * degree);
 }
 
-long double distance(long double lat1, long double long1,
-                     long double lat2, long double long2)
+double distance(double lat1, double long1,
+                     double lat2, double long2)
 {
     // Convert the latitudes
     // and longitudes
@@ -49,10 +50,10 @@ long double distance(long double lat1, long double long1,
     long2 = toRadians(long2);
 
     // Haversine Formula
-    long double dlong = long2 - long1;
-    long double dlat = lat2 - lat1;
+    double dlong = long2 - long1;
+    double dlat = lat2 - lat1;
 
-    long double ans = pow(sin(dlat / 2), 2) +
+    double ans = pow(sin(dlat / 2), 2) +
         cos(lat1) * cos(lat2) *
             pow(sin(dlong / 2), 2);
 
@@ -61,7 +62,7 @@ long double distance(long double lat1, long double long1,
     // Radius of Earth in
     // Kilometers, R = 6371
     // Use R = 3956 for miles
-    long double R = 6371;
+    double R = 6371;
 
     // Calculate the result
     ans = ans * R;
@@ -140,7 +141,7 @@ void getElevFile(point *data,Range path[],int pathSize,int data_number)
 	int middle=0;
 	while (low <= high) {
 		int mid = (low + high) / 2;
-		printf("The middle %d between %d-%d , and pathSize is %d and the coordinates is %f. Elevation at mid %f \n", mid, low,high,(int)pathSize/2,coords[(int)pathSize/2].center.Y,data[mid].Y);
+		//printf("The middle %d between %d-%d , and pathSize is %d and the coordinates is %f. Elevation at mid %f \n", mid, low,high,(int)pathSize/2,coords[(int)pathSize/2].center.Y,data[mid].Y);
 		if (fabs(coords[(int)pathSize/2].center.Y-data[mid].Y)<=0.0002) {
 			middle=mid;  // Element found
 			break;
@@ -150,7 +151,7 @@ void getElevFile(point *data,Range path[],int pathSize,int data_number)
 			high = mid - 1;  // Search in the left half
 		}
 	}
-	printf("The middle %d", middle);
+	//printf("The middle %d", middle);
 
     clock_t start_time = clock();  // Mark the start time
 
@@ -197,7 +198,9 @@ void getElevFile(point *data,Range path[],int pathSize,int data_number)
 }
 
 
-int PlotServer(){
+//int PlotServer(){
+//
+//	/////////////////////////////////////////////////////////////////
 //    int sock = 0,client_fd;
 //    struct sockaddr_in serv_addr;
 //
@@ -224,8 +227,8 @@ int PlotServer(){
 //    }
 //    else
 //        return sock;
-	return 0;
-}
+//	return 0;
+//}
 
 int str_length(char str[]) {
     // initializing count variable (stores the length of the string)

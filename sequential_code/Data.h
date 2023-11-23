@@ -20,7 +20,7 @@ void getElev(const char* query, char** results, int* numResults);
 void plot(char* query);
 int PlotServer();
 void getElevFile(point* data, Range path[], int pathSize,int data_number);
-long double toRadians(const long double degree);
+double toRadians(const double degree);
 double getFGValue(const char *url);
 void ElevDataInit(point *data, const char *file);
 int str_length(char str[]);

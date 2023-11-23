@@ -429,129 +429,44 @@ point* DescendEnvelopGeneration(int RTC, float Vground, Pos position, float Vert
     return envelope;
 }
 
-int intersection(Range path[100], point envelope[100], float Vground, char type) {
-	int call_arg;
-	int call_arg2;
-
+int intersection(Range path[], point envelope[], float Vground, char type) {
     // Level: 'l'
     // Descend: 'd'
     // Imminent Terrain Impact: 'i'
 
-	if (type == 'l') {
-		int i;
-		int cond;
+    if (type == 'l') {
+        for (int i = 0; i < CalculateLAT(Vground) + 1; i++) {
+            if (path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y || path[i].limit2.Z > envelope[1].Y) {
+                printf("WARNING!!! %d %f %f", i, envelope[1].Y, path[i].center.Z);
+                return 1;
+            }
+        }
+    }
 
-		i = 0;
+    if (type == 'd') {
+        // Calculate the A-B line equation: y − y1 = m(x − x1)
+        float slope = (envelope[0].Y - envelope[1].Y) / (envelope[0].X - envelope[1].X);
 
+        for (int i = 0; i < CalculateLAT(Vground) + 1; i++) {
+            if ((envelope[0].X + path[i].distance) < envelope[1].X) {  // Point between A & B
+                // Calculate the y (elevation) by plugging the x from every point in the A-B equation
+                // and then compare it to the y of the point on the path
+                float intersectionY = slope * ((envelope[0].X + path[i].distance) - envelope[1].X) + envelope[1].Y;
+                if (path[i].center.Z > intersectionY || path[i].limit1.Z > intersectionY || path[i].limit2.Z > intersectionY) {
+                    printf("WARNING!!! %d %f %f\n", i, path[i].distance, intersectionY);
+                    return 1;
+                }
+            } else {  // Point between B & C
+                if (path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y || path[i].limit2.Z > envelope[1].Y) {
+                    printf("WARNING!!! %d %f\n", i, path[i].distance);
+                    return 1;
+                }
+            }
+        }
+    }
 
-		call_arg = CalculateLAT(Vground);
-
-		cond = (i < call_arg + 1);
-
-
-		for (; cond; ) {
-			if ((path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y) || path[i].limit2.Z > envelope[1].Y) {
-
-				printf("WARNING!!! %d %f %f", i, envelope[1].Y, path[i].center.Z);
-
-				return 1;
-			}
-
-			i = i + 1;
-
-
-			call_arg = CalculateLAT(Vground);
-
-			cond = (i < call_arg + 1);
-
-		}
-	}
-
-	if (type == 'd') {
-		// Calculate the A-B line equation: y − y1 = m(x − x1)
-		float slope = (envelope[0].Y - envelope[1].Y) / (envelope[0].X - envelope[1].X);
-		int i;
-		int cond;
-
-
-		i = 0;
-
-
-		call_arg2 = CalculateLAT(Vground);
-
-		cond = (i < call_arg2 + 1);
-
-
-		for (; cond; ) {
-			if (envelope[0].X + path[i].distance < envelope[1].X) {
-				float intersectionY = slope * (envelope[0].X + path[i].distance - envelope[1].X) + envelope[1].Y;
-
-
-				if ((path[i].center.Z > intersectionY || path[i].limit1.Z > intersectionY) || path[i].limit2.Z > intersectionY) {
-
-					printf("WARNING!!! %d %f %f\n", i, path[i].distance, intersectionY);
-
-					return 1;
-				}
-			} else if ((path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y) || path[i].limit2.Z > envelope[1].Y) {
-
-				printf("WARNING!!! %d %f\n", i, path[i].distance);
-
-				return 1;
-			}
-
-
-			i = i + 1;
-
-
-			call_arg2 = CalculateLAT(Vground);
-
-			cond = (i < call_arg2 + 1);
-
-		}
-	}
-
-	return 0;
+    return 0;  // No intersection found
 }
-
-//int intersection(Range path[], point envelope[], float Vground, char type) {
-//    // Level: 'l'
-//    // Descend: 'd'
-//    // Imminent Terrain Impact: 'i'
-//
-//    if (type == 'l') {
-//        for (int i = 0; i < CalculateLAT(Vground) + 1; i++) {
-//            if (path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y || path[i].limit2.Z > envelope[1].Y) {
-//                printf("WARNING!!! %d %f %f", i, envelope[1].Y, path[i].center.Z);
-//                return 1;
-//            }
-//        }
-//    }
-//
-//    if (type == 'd') {
-//        // Calculate the A-B line equation: y − y1 = m(x − x1)
-//        float slope = (envelope[0].Y - envelope[1].Y) / (envelope[0].X - envelope[1].X);
-//
-//        for (int i = 0; i < CalculateLAT(Vground) + 1; i++) {
-//            if ((envelope[0].X + path[i].distance) < envelope[1].X) {  // Point between A & B
-//                // Calculate the y (elevation) by plugging the x from every point in the A-B equation
-//                // and then compare it to the y of the point on the path
-//                float intersectionY = slope * ((envelope[0].X + path[i].distance) - envelope[1].X) + envelope[1].Y;
-//                if (path[i].center.Z > intersectionY || path[i].limit1.Z > intersectionY || path[i].limit2.Z > intersectionY) {
-//                    printf("WARNING!!! %d %f %f\n", i, path[i].distance, intersectionY);
-//                    return 1;
-//                }
-//            } else {  // Point between B & C
-//                if (path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y || path[i].limit2.Z > envelope[1].Y) {
-//                    printf("WARNING!!! %d %f\n", i, path[i].distance);
-//                    return 1;
-//                }
-//            }
-//        }
-//    }
-//
-//    return 0;  // No intersection found
-//}
 
 
 
