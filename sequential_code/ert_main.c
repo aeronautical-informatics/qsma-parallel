@@ -123,7 +123,7 @@ void ExternalComm(void)
 		/* Retrieve input port configuration (block size, number of blocks). */
 		if (fstat(fd_in, &sb) < 0)
 			errno_abort(" stat fd_in");
-		printf("Bouncer: fd_in blocks %d blksize %d\n",
+		printf("Bouncer: fd_in blocks %ld blksize %ld\n",
 			   sb.st_blocks, sb.st_blksize);
 
 		/* Limit block size to MAXSZ. */
@@ -142,7 +142,7 @@ void ExternalComm(void)
 		/* Retrieve output port configuration (block size, number of blocks). */
 		if (fstat(fd_out, &sb) < 0)
 			errno_abort(" stat fd_out");
-		printf("Bouncer: fd_out blocks %d blksize %d\n",
+		printf("Bouncer: fd_out blocks %ld blksize %ld\n",
 			   sb.st_blocks, sb.st_blksize);
 
 		if (sb.st_blksize > MAXSZ)
