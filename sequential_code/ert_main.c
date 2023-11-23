@@ -59,7 +59,7 @@ mqd_t mq_out;					/* Message Q for output data to fd_out */
 /* -------------------------- LOCAL FUNCTIONS ------------------------------ */
 
 /* Writer thread: Read data from mq_out and write it to fd_out. */
-static void *thread_w(void *unused __unused)
+static void *thread_w(void *unused)
 {
 	char buf[MAXSZ];
 	ssize_t size;
@@ -79,7 +79,7 @@ static void *thread_w(void *unused __unused)
 }
 
 /* Reader thread: Read data from fd_in and write it to mq_in. */
-static void *thread_r(void *unused __unused)
+static void *thread_r(void *unused)
 {
 	char buf[MAXSZ];
 	int r;
