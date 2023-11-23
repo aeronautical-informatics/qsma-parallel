@@ -188,7 +188,7 @@ int fltastep() {
 		//send(sock, "\n", 1, 0);
 		//send(sock, "env\n", 4, 0);
 
-		char TempEnv[50]="";
+		char TempEnv[317]="";
 		sprintf(TempEnv,"%f %f%s%f %f%s%f %f%s%f %f%s",
 				envelope[0].X,envelope[0].Y,",",
 				envelope[1].X,envelope[1].Y,",",
@@ -211,7 +211,7 @@ int fltastep() {
 		//send(sock, "\n", 1, 0);
 		//send(sock, "env\n", 4, 0);
 
-		char TempEnv[50]="";
+		char TempEnv[1909]="";
 		sprintf(TempEnv,"%f %f%s%f %f%s%f %f%s",
 				envelope[0].X,envelope[0].Y,",",
 				envelope[1].X,envelope[1].Y,",",
