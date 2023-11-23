@@ -4,7 +4,7 @@ NAME = FLTA
 OPT = 2
 MPI = 4
 
-CFLAGS = -I. -lm -O$(OPT) -fPIC -U_FORTIFY_SOURCE -g -ftree-vectorize -pipe -Wno-psabi  -mcpu=cortex-a7 
+CFLAGS = -I. -lm -O$(OPT) -fPIC -U_FORTIFY_SOURCE -g -ftree-vectorize -pipe -Wno-psabi
 CXXFLAGS = $(CFLAGS) -fpermissive  
 LDFLAGS = -lm 
 INC =
