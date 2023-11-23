@@ -1,5 +1,5 @@
-CC = gcc
-CXX = g++
+CC ?= gcc
+CXX ?= g++
 NAME = FLTA
 OPT = 2
 MPI = 4
