@@ -27,7 +27,7 @@
 #include <sched.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <mqueue2.h>
+#include <mqueue.h>
 #include <sys/stat.h>
 #include <time.h>
 
