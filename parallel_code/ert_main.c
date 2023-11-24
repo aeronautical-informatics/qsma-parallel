@@ -38,6 +38,7 @@
 #include <stdio.h>              /* This ert_main.c example uses printf/fflush */
 #include "QSMA_TAWS.h"          /* Model's header file */
 #include "rtwtypes.h"
+#include "_emx_main.h"
 
 #define RTT_TIME	10			/* Round-trip time for one timing loop. */
 
@@ -108,11 +109,38 @@ static void *thread_r(void *__unused)
 	return 0;
 }
 
-//The main run
+void run_main(int core) {
+	switch(core) {
+		case 0: {
+			fltastep_p0();
+			break;
+		}
+		case 1: {
+			fltastep_p1();
+			break;
+		}
+		case 2: {
+			fltastep_p2();
+			break;
+		}
+		case 3: {
+			fltastep_p3();
+			break;
+		}
+		default:{
+			break;
+		}
+	}
+
+	EMX_Join(core);
+}
 
 int_T main(int_T argc, const char *argv[])
 {
 	sleep(5);
+
+	int core = EMX_Init(argc, argv);
+
 	//ExternalComm();
 	printf("ERT_MAIN STARTS\n");
 
@@ -132,8 +160,11 @@ int_T main(int_T argc, const char *argv[])
 		FLTA_DATA.TrueTrack=135; //degrees
 		FLTA_DATA.YawRate=0.05; //degrees
 
-		fltastep();
+		EMX_Run(core);
+		//fltastep();
 	}
+
+	EMX_Finalize();
 }
 
 
