@@ -35,6 +35,38 @@ int CalculateLAT(float Vground) {
 	
 }
 
+int CalculateLAT_duplicate2(float Vground) {
+	if (Vground <= 100) {
+		return 20;
+	} else if (Vground <= 150) {
+		return 20;
+	} else if (Vground <= 200) {
+		return 25;
+	} else if (Vground <= 250) {
+		return 27;
+	} else if (Vground <= 300) {
+		return 31;
+	} else if (Vground <= 350) {
+		return 35;
+	} else if (Vground <= 450) {
+		return 32;
+	} else if (Vground <= 550) {
+		return 27;
+	} else if (Vground <= 600) {
+		return 25;
+	} else {
+		return 15;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+}
+
 point * LevelEnvelopGeneration(int RTC, float Vground, Pos position) {
 	int call_arg;
 	float call_arg2;
@@ -47,21 +79,21 @@ point * LevelEnvelopGeneration(int RTC, float Vground, Pos position) {
 		point B;
 		point C;
 		
-		call_arg = CalculateLAT(Vground);
-		
-		LookAheadTime = call_arg;
+		call_arg = CalculateLAT_duplicate2(Vground);
 		
 		A.X = 0;
 		A.Y = position.alt - RTC;
 		
-		call_arg2 = Vground * LookAheadTime;
+		LookAheadTime = call_arg;
 		
-		printf("Debug %f %d %f\n", Vground, LookAheadTime, call_arg2);
+		call_arg2 = Vground * LookAheadTime;
 		
 		B.X = Vground * LookAheadTime;
 		B.Y = A.Y;
 		C.X = B.X;
 		C.Y = position.alt;
+		
+		printf("Debug %f %d %f\n", Vground, LookAheadTime, call_arg2);
 		
 		{
 			static point envelope[4];
@@ -88,7 +120,7 @@ point * DescendEnvelopGeneration(int RTC, float Vground, Pos position, float Ver
 		point C;
 		point D;
 		
-		call_arg = CalculateLAT(Vground);
+		call_arg = CalculateLAT_duplicate2(Vground);
 		
 		LookAheadTime = call_arg;
 		
@@ -117,73 +149,6 @@ point * DescendEnvelopGeneration(int RTC, float Vground, Pos position, float Ver
 	}
 }
 
-int intersection(Range path[100], point envelope[100], float Vground, char type) {
-	int call_arg;
-	int call_arg2;
-	
-	if (type == 'l') {
-		int i;
-		int cond;
-		
-		i = 0;
-		
-		call_arg = CalculateLAT(Vground);
-		
-		cond = (i < call_arg + 1);
-		
-		for (; cond; ) {
-			if ((path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y) || path[i].limit2.Z > envelope[1].Y) {
-				printf("WARNING!!! %d %f %f", i, envelope[1].Y, path[i].center.Z);
-				
-				return 1;
-			}
-			
-			i = i + 1;
-			
-			call_arg = CalculateLAT(Vground);
-			
-			cond = (i < call_arg + 1);
-		}
-	}
-	
-	if (type == 'd') {
-		float slope = (envelope[0].Y - envelope[1].Y) / (envelope[0].X - envelope[1].X);
-		int i;
-		int cond;
-		
-		i = 0;
-		
-		call_arg2 = CalculateLAT(Vground);
-		
-		cond = (i < call_arg2 + 1);
-		
-		for (; cond; ) {
-			if (envelope[0].X + path[i].distance < envelope[1].X) {
-				float intersectionY = slope * (envelope[0].X + path[i].distance - envelope[1].X) + envelope[1].Y;
-				
-				if ((path[i].center.Z > intersectionY || path[i].limit1.Z > intersectionY) || path[i].limit2.Z > intersectionY) {
-					printf("WARNING!!! %d %f %f\n", i, path[i].distance, intersectionY);
-					
-					return 1;
-				}
-			} else if ((path[i].center.Z > envelope[1].Y || path[i].limit1.Z > envelope[1].Y) || path[i].limit2.Z > envelope[1].Y) {
-				printf("WARNING!!! %d %f\n", i, path[i].distance);
-				
-				return 1;
-			}
-			
-			
-			i = i + 1;
-			
-			call_arg2 = CalculateLAT(Vground);
-			
-			cond = (i < call_arg2 + 1);
-		}
-	}
-	
-	return 0;
-}
-
 int intersection_duplicate2(Range path[100], point envelope[100], float Vground, char type) {
 	int call_arg;
 	int call_arg2;
@@ -194,7 +159,7 @@ int intersection_duplicate2(Range path[100], point envelope[100], float Vground,
 		
 		i = 0;
 		
-		call_arg = CalculateLAT(Vground);
+		call_arg = CalculateLAT_duplicate2(Vground);
 		
 		cond = (i < call_arg + 1);
 		
@@ -207,7 +172,7 @@ int intersection_duplicate2(Range path[100], point envelope[100], float Vground,
 			
 			i = i + 1;
 			
-			call_arg = CalculateLAT(Vground);
+			call_arg = CalculateLAT_duplicate2(Vground);
 			
 			cond = (i < call_arg + 1);
 		}
@@ -220,7 +185,7 @@ int intersection_duplicate2(Range path[100], point envelope[100], float Vground,
 		
 		i = 0;
 		
-		call_arg2 = CalculateLAT(Vground);
+		call_arg2 = CalculateLAT_duplicate2(Vground);
 		
 		cond = (i < call_arg2 + 1);
 		
@@ -242,7 +207,7 @@ int intersection_duplicate2(Range path[100], point envelope[100], float Vground,
 			
 			i = i + 1;
 			
-			call_arg2 = CalculateLAT(Vground);
+			call_arg2 = CalculateLAT_duplicate2(Vground);
 			
 			cond = (i < call_arg2 + 1);
 		}
@@ -296,20 +261,20 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 	double call_arg38_p2;
 	double call_arg39_p2;
 	
-	call_arg_p2 = CalculateLAT(Vground_p2);
+	call_arg_p2 = CalculateLAT_duplicate2(Vground_p2);
 	
-	EMX_Send32(2, 3, 4, -1, call_arg_p2);
+	EMX_Send32(2, 3, 8, -1, call_arg_p2);
 	
 	Vground_p2 = Vground_p2 * 0.514444;
 	
-	LookAheadTime_p2 = EMX_Recv32(3, 2, 5, -1);
+	LookAheadTime_p2 = EMX_Recv32(3, 2, 9, -1);
 	
 	{
 		double StraightDis_p2 = Vground_p2 * LookAheadTime_p2;
 		static Range path_p2[100];
 		point container_p2;
 		
-		EMX_Recv(3, 2, 6, -1, path_p2, 100 * sizeof(*path_p2));
+		EMX_Recv(3, 2, 10, -1, path_p2, 100 * sizeof(*path_p2));
 		
 		{
 			double DeltaX_p2;
@@ -363,12 +328,12 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 				path_p2[i_p2].distance = Vground_p2 * i_p2;
 			}
 			
-			Slope_p2 = EMX_Recv64F(3, 2, 9, -1);
+			Slope_p2 = EMX_Recv64F(3, 2, 13, -1);
 			
 			
-			EMX_Send(2, 3, 8, -1, path_p2, 100 * sizeof(*path_p2));
+			EMX_Send(2, 3, 12, -1, path_p2, 100 * sizeof(*path_p2));
 			
-			EMX_Recv(3, 2, 7, -1, path_p2, 100 * sizeof(*path_p2));
+			EMX_Recv(3, 2, 11, -1, path_p2, 100 * sizeof(*path_p2));
 			
 			for (int i_p2 = 1; i_p2 <= LookAheadTime_p2; i_p2 = i_p2 + 1) {
 				_Bool cond4_p2;
@@ -498,11 +463,11 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 	double call_arg23_p3;
 	double call_arg24_p3;
 	
-	call_arg_p3 = EMX_Recv32(2, 3, 4, -1);
+	call_arg_p3 = EMX_Recv32(2, 3, 8, -1);
 	
 	LookAheadTime_p3 = call_arg_p3;
 	
-	EMX_Send32(3, 2, 5, -1, LookAheadTime_p3);
+	EMX_Send32(3, 2, 9, -1, LookAheadTime_p3);
 	
 	{
 		point container_p3;
@@ -512,7 +477,7 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 		container_p3.Y = 0;
 		path_p3[0].center = container_p3;
 		
-		EMX_Send(3, 2, 6, -1, path_p3, 100 * sizeof(*path_p3));
+		EMX_Send(3, 2, 10, -1, path_p3, 100 * sizeof(*path_p3));
 		
 		{
 			int cond22_p3;
@@ -526,7 +491,7 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 			
 			cond3_p3 = 1;
 			
-			EMX_Send64F(3, 2, 9, -1, Slope_p3);
+			EMX_Send64F(3, 2, 13, -1, Slope_p3);
 			
 			if (cond22_p3) {
 				call_arg11_p3 = fabs(TrueTrack_p3);
@@ -536,7 +501,7 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 			
 			cond_p3 = cond3_p3;
 			
-			EMX_Recv(2, 3, 8, -1, path_p3, 100 * sizeof(*path_p3));
+			EMX_Recv(2, 3, 12, -1, path_p3, 100 * sizeof(*path_p3));
 			
 			if (cond_p3) {
 				double ClearanceY_p3 = path_p3[0].center.Y + Clearance_p3;
@@ -609,7 +574,7 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 				path_p3[0].limit2 = container_p3;
 			}
 			
-			EMX_Send(3, 2, 7, -1, path_p3, 100 * sizeof(*path_p3));
+			EMX_Send(3, 2, 11, -1, path_p3, 100 * sizeof(*path_p3));
 		}
 	}
 }
@@ -648,15 +613,15 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 	double call_arg34_p2;
 	double call_arg35_p2;
 	
-	call_arg_p2 = CalculateLAT(Vground_p2);
+	call_arg_p2 = CalculateLAT_duplicate2(Vground_p2);
 	
-	EMX_Send32(2, 3, 10, -1, call_arg_p2);
+	EMX_Send32(2, 3, 14, -1, call_arg_p2);
 	
 	Vground_p2 = Vground_p2 * 0.514444;
 	
-	LookAheadTime_p2 = EMX_Recv32(3, 2, 12, -1);
+	LookAheadTime_p2 = EMX_Recv32(3, 2, 16, -1);
 	
-	EMX_Send64F(2, 3, 11, -1, a_p2);
+	EMX_Send64F(2, 3, 15, -1, a_p2);
 	
 	{
 		point container_p2;
@@ -673,15 +638,15 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 			_Bool cond3_p2;
 			int cond_p2;
 			
-			EMX_Send64F(2, 3, 14, -1, theta_p2);
+			EMX_Send64F(2, 3, 18, -1, theta_p2);
 			
 			call_arg4_p2 = fabs(TrueTrack_p2);
 			
 			cond22_p2 = !(call_arg4_p2 == 90);
 			
-			cond3_p2 = EMX_Recv8(3, 2, 15, -1);
+			cond3_p2 = EMX_Recv8(3, 2, 19, -1);
 			
-			EMX_Send64F(2, 3, 13, -1, Radius_p2);
+			EMX_Send64F(2, 3, 17, -1, Radius_p2);
 			
 			if (cond22_p2) {
 				call_arg5_p2 = fabs(TrueTrack_p2);
@@ -765,7 +730,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 				double Slope_p2;
 				double DeltaSlope_p2;
 				
-				EMX_Send64F(2, 3, 16, -1, DeltaTheta_p2);
+				EMX_Send64F(2, 3, 20, -1, DeltaTheta_p2);
 				
 				call_arg20_p2 = 0.5 * DeltaTheta_p2;
 				
@@ -773,16 +738,16 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 				
 				chord_p2 = 2 * Radius_p2 * call_arg19_p2;
 				
-				Slope_p2 = EMX_Recv64F(3, 2, 19, -1);
+				Slope_p2 = EMX_Recv64F(3, 2, 23, -1);
 				
-				EMX_Send64F(2, 3, 18, -1, chord_p2);
+				EMX_Send64F(2, 3, 22, -1, chord_p2);
 				
-				DeltaSlope_p2 = EMX_Recv64F(3, 2, 17, -1);
+				DeltaSlope_p2 = EMX_Recv64F(3, 2, 21, -1);
 				
-				for (int i_p2 = 1; sync_p2 = (i_p2 <= LookAheadTime_p2), EMX_SendSync(2, 3, 30, -1, sync_p2), sync_p2; i_p2 = i_p2 + 1) {
-					EMX_Send64F(2, 3, 22, -1, DeltaSlope_p2);
+				for (int i_p2 = 1; sync_p2 = (i_p2 <= LookAheadTime_p2), EMX_SendSync(2, 3, 36, -1, sync_p2), sync_p2; i_p2 = i_p2 + 1) {
+					EMX_Send64F(2, 3, 26, -1, DeltaSlope_p2);
 					
-					EMX_Send64F(2, 3, 21, -1, PredX_p2);
+					EMX_Send64F(2, 3, 25, -1, PredX_p2);
 					
 					{
 						double DeltaY_p2;
@@ -790,7 +755,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 						
 						call_arg22_p2 = tan(DeltaSlope_p2);
 						
-						DeltaX_p2 = EMX_Recv64F(3, 2, 23, -1);
+						DeltaX_p2 = EMX_Recv64F(3, 2, 27, -1);
 						
 						DeltaY_p2 = call_arg22_p2 * (DeltaX_p2 - PredX_p2) + PredY_p2;
 						
@@ -799,7 +764,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 						DeltaSlope_p2 = DeltaSlope_p2 - DeltaTheta_p2;
 						Slope_p2 = Slope_p2 - DeltaTheta_p2;
 						
-						EMX_Send64F(2, 3, 20, -1, Slope_p2);
+						EMX_Send64F(2, 3, 24, -1, Slope_p2);
 						
 						{
 							double sol1Y_p2;
@@ -815,21 +780,21 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 							
 							call_arg27_p2 = pow(call_arg28_p2, 2.0);
 							
-							EMX_Send64F(2, 3, 25, -1, call_arg27_p2);
+							EMX_Send64F(2, 3, 29, -1, call_arg27_p2);
 							
-							EMX_Send64F(2, 3, 24, -1, call_arg25_p2);
+							EMX_Send64F(2, 3, 28, -1, call_arg25_p2);
 							
 							call_arg34_p2 = tan(Slope_p2);
 							
-							ClearanceX_p2 = EMX_Recv64F(3, 2, 28, -1);
+							ClearanceX_p2 = EMX_Recv64F(3, 2, 32, -1);
 							
 							sol1Y_p2 = call_arg34_p2 * (ClearanceX_p2 - DeltaX_p2) + DeltaY_p2;
 							
-							ClearanceX_p2 = EMX_Recv64F(3, 2, 29, -1);
+							ClearanceX_p2 = EMX_Recv64F(3, 2, 33, -1);
 							
-							sol2_p2 = EMX_Recv64F(3, 2, 27, -1);
+							sol2_p2 = EMX_Recv64F(3, 2, 31, -1);
 							
-							sol1_p2 = EMX_Recv64F(3, 2, 26, -1);
+							sol1_p2 = EMX_Recv64F(3, 2, 30, -1);
 							
 							{
 								double sol2Y_p2;
@@ -880,13 +845,13 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 	double call_arg30_p3;
 	double call_arg32_p3;
 	
-	call_arg_p3 = EMX_Recv32(2, 3, 10, -1);
+	call_arg_p3 = EMX_Recv32(2, 3, 14, -1);
 	
 	LookAheadTime_p3 = call_arg_p3;
 	
-	EMX_Send32(3, 2, 12, -1, LookAheadTime_p3);
+	EMX_Send32(3, 2, 16, -1, LookAheadTime_p3);
 	
-	a_p3 = EMX_Recv64F(2, 3, 11, -1);
+	a_p3 = EMX_Recv64F(2, 3, 15, -1);
 	
 	{
 		_Bool cond3_p3;
@@ -895,13 +860,13 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 		double Radius_p3;
 		double Yc_p3;
 		
-		theta_p3 = EMX_Recv64F(2, 3, 14, -1);
+		theta_p3 = EMX_Recv64F(2, 3, 18, -1);
 		
 		cond3_p3 = 1;
 		
-		EMX_Send8(3, 2, 15, -1, cond3_p3);
+		EMX_Send8(3, 2, 19, -1, cond3_p3);
 		
-		Radius_p3 = EMX_Recv64F(2, 3, 13, -1);
+		Radius_p3 = EMX_Recv64F(2, 3, 17, -1);
 		
 		call_arg3_p3 = tan(theta_p3);
 		
@@ -917,22 +882,22 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 			double Slope_p3;
 			double chord_p3;
 			
-			DeltaTheta_p3 = EMX_Recv64F(2, 3, 16, -1);
+			DeltaTheta_p3 = EMX_Recv64F(2, 3, 20, -1);
 			
 			DeltaSlope_p3 = 3.14159265 / 2.0 - a_p3 - DeltaTheta_p3 / 2.0;
 			
 			Slope_p3 = theta_p3;
 			
-			EMX_Send64F(3, 2, 19, -1, Slope_p3);
+			EMX_Send64F(3, 2, 23, -1, Slope_p3);
 			
-			chord_p3 = EMX_Recv64F(2, 3, 18, -1);
+			chord_p3 = EMX_Recv64F(2, 3, 22, -1);
 			
-			EMX_Send64F(3, 2, 17, -1, DeltaSlope_p3);
+			EMX_Send64F(3, 2, 21, -1, DeltaSlope_p3);
 			
-			for (int i_p3 = 1; EMX_RecvSync(2, 3, 30, -1); i_p3 = i_p3 + 1) {
-				DeltaSlope_p3 = EMX_Recv64F(2, 3, 22, -1);
+			for (int i_p3 = 1; EMX_RecvSync(2, 3, 36, -1); i_p3 = i_p3 + 1) {
+				DeltaSlope_p3 = EMX_Recv64F(2, 3, 26, -1);
 				
-				PredX_p3 = EMX_Recv64F(2, 3, 21, -1);
+				PredX_p3 = EMX_Recv64F(2, 3, 25, -1);
 				
 				{
 					double DeltaX_p3;
@@ -941,9 +906,9 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 					
 					DeltaX_p3 = PredX_p3 + chord_p3 * call_arg21_p3;
 					
-					EMX_Send64F(3, 2, 23, -1, DeltaX_p3);
+					EMX_Send64F(3, 2, 27, -1, DeltaX_p3);
 					
-					Slope_p3 = EMX_Recv64F(2, 3, 20, -1);
+					Slope_p3 = EMX_Recv64F(2, 3, 24, -1);
 					
 					{
 						double A2_p3;
@@ -959,9 +924,9 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 						
 						call_arg23_p3 = pow(call_arg24_p3, 2.0);
 						
-						call_arg27_p3 = EMX_Recv64F(2, 3, 25, -1);
+						call_arg27_p3 = EMX_Recv64F(2, 3, 29, -1);
 						
-						call_arg25_p3 = EMX_Recv64F(2, 3, 24, -1);
+						call_arg25_p3 = EMX_Recv64F(2, 3, 28, -1);
 						
 						A2_p3 = -2 * DeltaX_p3 - 2 * call_arg25_p3 * call_arg26_p3 * DeltaX_p3;
 						
@@ -983,20 +948,90 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 						
 						ClearanceX_p3 = sol1_p3;
 						
-						EMX_Send64F(3, 2, 28, -1, ClearanceX_p3);
+						EMX_Send64F(3, 2, 32, -1, ClearanceX_p3);
 						
 						ClearanceX_p3 = sol2_p3;
 						
-						EMX_Send64F(3, 2, 29, -1, ClearanceX_p3);
+						EMX_Send64F(3, 2, 33, -1, ClearanceX_p3);
 						
-						EMX_Send64F(3, 2, 27, -1, sol2_p3);
+						EMX_Send64F(3, 2, 31, -1, sol2_p3);
 						
-						EMX_Send64F(3, 2, 26, -1, sol1_p3);
+						EMX_Send64F(3, 2, 30, -1, sol1_p3);
 					}
 				}
 			}
 		}
 	}
+}
+
+int intersection_p3(Range path_p3[100], point envelope_p3[100], float Vground_p3, char type_p3) {
+	int call_arg_p3;
+	int call_arg2_p3;
+	
+	if (type_p3 == 'l') {
+		int i_p3;
+		int cond_p3;
+		
+		i_p3 = 0;
+		
+		call_arg_p3 = CalculateLAT(Vground_p3);
+		
+		cond_p3 = (i_p3 < call_arg_p3 + 1);
+		
+		for (; cond_p3; ) {
+			if ((path_p3[i_p3].center.Z > envelope_p3[1].Y || path_p3[i_p3].limit1.Z > envelope_p3[1].Y) || path_p3[i_p3].limit2.Z > envelope_p3[1].Y) {
+				printf("WARNING!!! %d %f %f", i_p3, envelope_p3[1].Y, path_p3[i_p3].center.Z);
+				
+				return 1;
+			}
+			
+			i_p3 = i_p3 + 1;
+			
+			call_arg_p3 = CalculateLAT(Vground_p3);
+			
+			cond_p3 = (i_p3 < call_arg_p3 + 1);
+		}
+	}
+	
+	if (type_p3 == 'd') {
+		float slope_p3 = (envelope_p3[0].Y - envelope_p3[1].Y) / (envelope_p3[0].X - envelope_p3[1].X);
+		int i_p3;
+		int cond_p3;
+		
+		i_p3 = 0;
+		
+		call_arg2_p3 = CalculateLAT(Vground_p3);
+		
+		cond_p3 = (i_p3 < call_arg2_p3 + 1);
+		
+		for (; cond_p3; ) {
+			if (envelope_p3[0].X + path_p3[i_p3].distance < envelope_p3[1].X) {
+				float intersectionY_p3 = slope_p3 * (envelope_p3[0].X + path_p3[i_p3].distance - envelope_p3[1].X) + envelope_p3[1].Y;
+				
+				if ((path_p3[i_p3].center.Z > intersectionY_p3 || path_p3[i_p3].limit1.Z > intersectionY_p3) || path_p3[i_p3].limit2.Z > intersectionY_p3) {
+					printf("WARNING!!! %d %f %f\n", i_p3, path_p3[i_p3].distance, intersectionY_p3);
+					
+					return 1;
+				}
+			} else if ((path_p3[i_p3].center.Z > envelope_p3[1].Y || path_p3[i_p3].limit1.Z > envelope_p3[1].Y) || path_p3[i_p3].limit2.Z > envelope_p3[1].Y) {
+				printf("WARNING!!! %d %f\n", i_p3, path_p3[i_p3].distance);
+				
+				return 1;
+			}
+			
+			
+			i_p3 = i_p3 + 1;
+			
+			call_arg2_p3 = CalculateLAT(Vground_p3);
+			
+			cond_p3 = (i_p3 < call_arg2_p3 + 1);
+		}
+	}
+	
+	return 0;
+}
+
+void intersection_p2(void) {
 }
 
 
