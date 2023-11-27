@@ -169,7 +169,6 @@ int init() {
 	}
 }
 
-int fdopen();
 extern int CalculateLAT_duplicate5(float Vground);
 void step2Outline(float OriginalLat, float OriginalLon, Range * path) {
 	char fileName[100];
