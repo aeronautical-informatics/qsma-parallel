@@ -122,17 +122,17 @@ void getElevFile(point *data,Range path[],int pathSize,int data_number)
         path[i].limit2.Z=0.0;
 
         //Inverting the conversion of the coordinates to the original geo coordinates
-        coords[i].center.X=xMeterI(yMeterI(path[i].center.Y / 1000.0), path[i].center.X / 1000.0);
+        coords[i].center.X=xMeter(yMeter(path[i].center.Y / 1000.0), path[i].center.X / 1000.0);
 
-        coords[i].center.Y=yMeterI(path[i].center.Y / 1000.0);
+        coords[i].center.Y=yMeter(path[i].center.Y / 1000.0);
 
-        coords[i].limit1.X=xMeterI(yMeterI(path[i].limit1.Y / 1000.0), path[i].limit1.X / 1000.0);
+        coords[i].limit1.X=xMeter(yMeter(path[i].limit1.Y / 1000.0), path[i].limit1.X / 1000.0);
 
-        coords[i].limit1.Y=yMeterI(path[i].limit1.Y / 1000.0);
+        coords[i].limit1.Y=yMeter(path[i].limit1.Y / 1000.0);
 
-        coords[i].limit2.X= xMeterI(yMeterI(path[i].limit2.Y / 1000.0), path[i].limit2.X / 1000.0);
+        coords[i].limit2.X= xMeter(yMeter(path[i].limit2.Y / 1000.0), path[i].limit2.X / 1000.0);
 
-        coords[i].limit2.Y=yMeterI(path[i].limit2.Y / 1000.0);
+        coords[i].limit2.Y=yMeter(path[i].limit2.Y / 1000.0);
     }
 
     //Finding the middle point of the path in the elivation data

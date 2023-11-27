@@ -306,10 +306,12 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 	
 	{
 		double StraightDis_p2 = Vground_p2 * LookAheadTime_p2;
-		static Range path_p2[100];
 		point container_p2;
+		static Range path_p2[100];
 		
-		EMX_Recv(3, 2, 6, -1, path_p2, 100 * sizeof(*path_p2));
+		container_p2.X = 0;
+		container_p2.Y = 0;
+		path_p2[0].center = container_p2;
 		
 		{
 			double DeltaX_p2;
@@ -363,12 +365,12 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 				path_p2[i_p2].distance = Vground_p2 * i_p2;
 			}
 			
-			Slope_p2 = EMX_Recv64F(3, 2, 9, -1);
+			Slope_p2 = EMX_Recv64F(3, 2, 7, -1);
 			
 			
-			EMX_Send(2, 3, 8, -1, path_p2, 100 * sizeof(*path_p2));
+			EMX_Send(2, 3, 6, -1, path_p2, 100 * sizeof(*path_p2));
 			
-			EMX_Recv(3, 2, 7, -1, path_p2, 100 * sizeof(*path_p2));
+			EMX_Recv(3, 2, 8, -1, path_p2, 100 * sizeof(*path_p2));
 			
 			for (int i_p2 = 1; i_p2 <= LookAheadTime_p2; i_p2 = i_p2 + 1) {
 				_Bool cond4_p2;
@@ -505,112 +507,103 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 	EMX_Send32(3, 2, 5, -1, LookAheadTime_p3);
 	
 	{
-		point container_p3;
 		static Range path_p3[100];
+		point container_p3;
+		int cond22_p3;
+		double Slope_p3 = 3.14159265 - TrueTrack_p3 * rad_p3;
+		_Bool cond3_p3;
+		int cond_p3;
 		
-		container_p3.X = 0;
-		container_p3.Y = 0;
-		path_p3[0].center = container_p3;
+		call_arg10_p3 = fabs(TrueTrack_p3);
 		
-		EMX_Send(3, 2, 6, -1, path_p3, 100 * sizeof(*path_p3));
+		cond22_p3 = !(call_arg10_p3 == 90);
 		
-		{
-			int cond22_p3;
-			double Slope_p3 = 3.14159265 - TrueTrack_p3 * rad_p3;
-			_Bool cond3_p3;
-			int cond_p3;
+		cond3_p3 = 1;
+		
+		EMX_Send64F(3, 2, 7, -1, Slope_p3);
+		
+		if (cond22_p3) {
+			call_arg11_p3 = fabs(TrueTrack_p3);
 			
-			call_arg10_p3 = fabs(TrueTrack_p3);
-			
-			cond22_p3 = !(call_arg10_p3 == 90);
-			
-			cond3_p3 = 1;
-			
-			EMX_Send64F(3, 2, 9, -1, Slope_p3);
-			
-			if (cond22_p3) {
-				call_arg11_p3 = fabs(TrueTrack_p3);
-				
-				cond3_p3 = (call_arg11_p3 == 270);
-			}
-			
-			cond_p3 = cond3_p3;
-			
-			EMX_Recv(2, 3, 8, -1, path_p3, 100 * sizeof(*path_p3));
-			
-			if (cond_p3) {
-				double ClearanceY_p3 = path_p3[0].center.Y + Clearance_p3;
-				
-				container_p3.X = path_p3[0].center.X;
-				container_p3.Y = ClearanceY_p3;
-				path_p3[0].limit1 = container_p3;
-				ClearanceY_p3 = path_p3[0].center.Y - Clearance_p3;
-				container_p3.X = path_p3[0].center.X;
-				container_p3.Y = ClearanceY_p3;
-				path_p3[0].limit2 = container_p3;
-			} else {
-				double A1_p3;
-				double A2_p3;
-				double A3_p3;
-				double sol1_p3;
-				double sol2_p3;
-				double ClearanceX_p3;
-				double ClearanceY_p3;
-				
-				call_arg12_p3 = tan(Slope_p3);
-				
-				call_arg13_p3 = tan(Slope_p3);
-				
-				A1_p3 = call_arg12_p3 * call_arg13_p3 + 1;
-				
-				call_arg14_p3 = tan(Slope_p3);
-				
-				call_arg15_p3 = tan(Slope_p3);
-				
-				A2_p3 = -2 * path_p3[0].center.X - 2 * call_arg14_p3 * call_arg15_p3 * path_p3[0].center.X;
-				
-				call_arg18_p3 = tan(Slope_p3);
-				
-				call_arg17_p3 = call_arg18_p3 * path_p3[0].center.X;
-				
-				call_arg16_p3 = pow(call_arg17_p3, 2);
-				
-				A3_p3 = path_p3[0].center.X * path_p3[0].center.X + call_arg16_p3 - Clearance_p3 * Clearance_p3;
-				
-				call_arg20_p3 = A2_p3 * A2_p3 - 4 * A1_p3 * A3_p3;
-				
-				call_arg19_p3 = sqrt(call_arg20_p3);
-				
-				sol1_p3 = (-A2_p3 + call_arg19_p3) / (2 * A1_p3);
-				
-				call_arg22_p3 = A2_p3 * A2_p3 - 4 * A1_p3 * A3_p3;
-				
-				call_arg21_p3 = sqrt(call_arg22_p3);
-				
-				sol2_p3 = (-A2_p3 - call_arg21_p3) / (2 * A1_p3);
-				
-				ClearanceX_p3 = sol1_p3;
-				
-				call_arg23_p3 = tan(Slope_p3);
-				
-				ClearanceY_p3 = call_arg23_p3 * (ClearanceX_p3 - path_p3[0].center.X) + path_p3[0].center.Y;
-				
-				container_p3.X = ClearanceX_p3;
-				container_p3.Y = ClearanceY_p3;
-				path_p3[0].limit1 = container_p3;
-				ClearanceX_p3 = sol2_p3;
-				
-				call_arg24_p3 = tan(Slope_p3);
-				
-				ClearanceY_p3 = call_arg24_p3 * (ClearanceX_p3 - path_p3[0].center.X) + path_p3[0].center.Y;
-				
-				container_p3.X = ClearanceX_p3;
-				container_p3.Y = ClearanceY_p3;
-				path_p3[0].limit2 = container_p3;
-			}
-			
-			EMX_Send(3, 2, 7, -1, path_p3, 100 * sizeof(*path_p3));
+			cond3_p3 = (call_arg11_p3 == 270);
 		}
+		
+		cond_p3 = cond3_p3;
+		
+		EMX_Recv(2, 3, 6, -1, path_p3, 100 * sizeof(*path_p3));
+		
+		if (cond_p3) {
+			double ClearanceY_p3 = path_p3[0].center.Y + Clearance_p3;
+			
+			container_p3.X = path_p3[0].center.X;
+			container_p3.Y = ClearanceY_p3;
+			path_p3[0].limit1 = container_p3;
+			ClearanceY_p3 = path_p3[0].center.Y - Clearance_p3;
+			container_p3.X = path_p3[0].center.X;
+			container_p3.Y = ClearanceY_p3;
+			path_p3[0].limit2 = container_p3;
+		} else {
+			double A1_p3;
+			double A2_p3;
+			double A3_p3;
+			double sol1_p3;
+			double sol2_p3;
+			double ClearanceX_p3;
+			double ClearanceY_p3;
+			
+			call_arg12_p3 = tan(Slope_p3);
+			
+			call_arg13_p3 = tan(Slope_p3);
+			
+			A1_p3 = call_arg12_p3 * call_arg13_p3 + 1;
+			
+			call_arg14_p3 = tan(Slope_p3);
+			
+			call_arg15_p3 = tan(Slope_p3);
+			
+			A2_p3 = -2 * path_p3[0].center.X - 2 * call_arg14_p3 * call_arg15_p3 * path_p3[0].center.X;
+			
+			call_arg18_p3 = tan(Slope_p3);
+			
+			call_arg17_p3 = call_arg18_p3 * path_p3[0].center.X;
+			
+			call_arg16_p3 = pow(call_arg17_p3, 2);
+			
+			A3_p3 = path_p3[0].center.X * path_p3[0].center.X + call_arg16_p3 - Clearance_p3 * Clearance_p3;
+			
+			call_arg20_p3 = A2_p3 * A2_p3 - 4 * A1_p3 * A3_p3;
+			
+			call_arg19_p3 = sqrt(call_arg20_p3);
+			
+			sol1_p3 = (-A2_p3 + call_arg19_p3) / (2 * A1_p3);
+			
+			call_arg22_p3 = A2_p3 * A2_p3 - 4 * A1_p3 * A3_p3;
+			
+			call_arg21_p3 = sqrt(call_arg22_p3);
+			
+			sol2_p3 = (-A2_p3 - call_arg21_p3) / (2 * A1_p3);
+			
+			ClearanceX_p3 = sol1_p3;
+			
+			call_arg23_p3 = tan(Slope_p3);
+			
+			ClearanceY_p3 = call_arg23_p3 * (ClearanceX_p3 - path_p3[0].center.X) + path_p3[0].center.Y;
+			
+			container_p3.X = ClearanceX_p3;
+			container_p3.Y = ClearanceY_p3;
+			path_p3[0].limit1 = container_p3;
+			ClearanceX_p3 = sol2_p3;
+			
+			call_arg24_p3 = tan(Slope_p3);
+			
+			ClearanceY_p3 = call_arg24_p3 * (ClearanceX_p3 - path_p3[0].center.X) + path_p3[0].center.Y;
+			
+			container_p3.X = ClearanceX_p3;
+			container_p3.Y = ClearanceY_p3;
+			path_p3[0].limit2 = container_p3;
+		}
+		
+		EMX_Send(3, 2, 8, -1, path_p3, 100 * sizeof(*path_p3));
 	}
 }
 
@@ -650,13 +643,13 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 	
 	call_arg_p2 = CalculateLAT(Vground_p2);
 	
-	EMX_Send32(2, 3, 10, -1, call_arg_p2);
+	EMX_Send32(2, 3, 9, -1, call_arg_p2);
 	
 	Vground_p2 = Vground_p2 * 0.514444;
 	
-	LookAheadTime_p2 = EMX_Recv32(3, 2, 12, -1);
+	LookAheadTime_p2 = EMX_Recv32(3, 2, 11, -1);
 	
-	EMX_Send64F(2, 3, 11, -1, a_p2);
+	EMX_Send64F(2, 3, 10, -1, a_p2);
 	
 	{
 		point container_p2;
@@ -673,15 +666,15 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 			_Bool cond3_p2;
 			int cond_p2;
 			
-			EMX_Send64F(2, 3, 14, -1, theta_p2);
+			EMX_Send64F(2, 3, 13, -1, theta_p2);
 			
 			call_arg4_p2 = fabs(TrueTrack_p2);
 			
 			cond22_p2 = !(call_arg4_p2 == 90);
 			
-			cond3_p2 = EMX_Recv8(3, 2, 15, -1);
+			cond3_p2 = EMX_Recv8(3, 2, 14, -1);
 			
-			EMX_Send64F(2, 3, 13, -1, Radius_p2);
+			EMX_Send64F(2, 3, 12, -1, Radius_p2);
 			
 			if (cond22_p2) {
 				call_arg5_p2 = fabs(TrueTrack_p2);
@@ -765,7 +758,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 				double Slope_p2;
 				double DeltaSlope_p2;
 				
-				EMX_Send64F(2, 3, 16, -1, DeltaTheta_p2);
+				EMX_Send64F(2, 3, 15, -1, DeltaTheta_p2);
 				
 				call_arg20_p2 = 0.5 * DeltaTheta_p2;
 				
@@ -773,16 +766,16 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 				
 				chord_p2 = 2 * Radius_p2 * call_arg19_p2;
 				
-				Slope_p2 = EMX_Recv64F(3, 2, 19, -1);
+				Slope_p2 = EMX_Recv64F(3, 2, 18, -1);
 				
-				EMX_Send64F(2, 3, 18, -1, chord_p2);
+				EMX_Send64F(2, 3, 17, -1, chord_p2);
 				
-				DeltaSlope_p2 = EMX_Recv64F(3, 2, 17, -1);
+				DeltaSlope_p2 = EMX_Recv64F(3, 2, 16, -1);
 				
-				for (int i_p2 = 1; sync_p2 = (i_p2 <= LookAheadTime_p2), EMX_SendSync(2, 3, 30, -1, sync_p2), sync_p2; i_p2 = i_p2 + 1) {
-					EMX_Send64F(2, 3, 22, -1, DeltaSlope_p2);
+				for (int i_p2 = 1; sync_p2 = (i_p2 <= LookAheadTime_p2), EMX_SendSync(2, 3, 29, -1, sync_p2), sync_p2; i_p2 = i_p2 + 1) {
+					EMX_Send64F(2, 3, 21, -1, DeltaSlope_p2);
 					
-					EMX_Send64F(2, 3, 21, -1, PredX_p2);
+					EMX_Send64F(2, 3, 20, -1, PredX_p2);
 					
 					{
 						double DeltaY_p2;
@@ -790,7 +783,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 						
 						call_arg22_p2 = tan(DeltaSlope_p2);
 						
-						DeltaX_p2 = EMX_Recv64F(3, 2, 23, -1);
+						DeltaX_p2 = EMX_Recv64F(3, 2, 22, -1);
 						
 						DeltaY_p2 = call_arg22_p2 * (DeltaX_p2 - PredX_p2) + PredY_p2;
 						
@@ -799,7 +792,7 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 						DeltaSlope_p2 = DeltaSlope_p2 - DeltaTheta_p2;
 						Slope_p2 = Slope_p2 - DeltaTheta_p2;
 						
-						EMX_Send64F(2, 3, 20, -1, Slope_p2);
+						EMX_Send64F(2, 3, 19, -1, Slope_p2);
 						
 						{
 							double sol1Y_p2;
@@ -815,21 +808,21 @@ Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos pos
 							
 							call_arg27_p2 = pow(call_arg28_p2, 2.0);
 							
-							EMX_Send64F(2, 3, 25, -1, call_arg27_p2);
+							EMX_Send64F(2, 3, 24, -1, call_arg27_p2);
 							
-							EMX_Send64F(2, 3, 24, -1, call_arg25_p2);
+							EMX_Send64F(2, 3, 23, -1, call_arg25_p2);
 							
 							call_arg34_p2 = tan(Slope_p2);
 							
-							ClearanceX_p2 = EMX_Recv64F(3, 2, 28, -1);
+							ClearanceX_p2 = EMX_Recv64F(3, 2, 27, -1);
 							
 							sol1Y_p2 = call_arg34_p2 * (ClearanceX_p2 - DeltaX_p2) + DeltaY_p2;
 							
-							ClearanceX_p2 = EMX_Recv64F(3, 2, 29, -1);
+							ClearanceX_p2 = EMX_Recv64F(3, 2, 28, -1);
 							
-							sol2_p2 = EMX_Recv64F(3, 2, 27, -1);
+							sol2_p2 = EMX_Recv64F(3, 2, 26, -1);
 							
-							sol1_p2 = EMX_Recv64F(3, 2, 26, -1);
+							sol1_p2 = EMX_Recv64F(3, 2, 25, -1);
 							
 							{
 								double sol2Y_p2;
@@ -880,13 +873,13 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 	double call_arg30_p3;
 	double call_arg32_p3;
 	
-	call_arg_p3 = EMX_Recv32(2, 3, 10, -1);
+	call_arg_p3 = EMX_Recv32(2, 3, 9, -1);
 	
 	LookAheadTime_p3 = call_arg_p3;
 	
-	EMX_Send32(3, 2, 12, -1, LookAheadTime_p3);
+	EMX_Send32(3, 2, 11, -1, LookAheadTime_p3);
 	
-	a_p3 = EMX_Recv64F(2, 3, 11, -1);
+	a_p3 = EMX_Recv64F(2, 3, 10, -1);
 	
 	{
 		_Bool cond3_p3;
@@ -895,13 +888,13 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 		double Radius_p3;
 		double Yc_p3;
 		
-		theta_p3 = EMX_Recv64F(2, 3, 14, -1);
+		theta_p3 = EMX_Recv64F(2, 3, 13, -1);
 		
 		cond3_p3 = 1;
 		
-		EMX_Send8(3, 2, 15, -1, cond3_p3);
+		EMX_Send8(3, 2, 14, -1, cond3_p3);
 		
-		Radius_p3 = EMX_Recv64F(2, 3, 13, -1);
+		Radius_p3 = EMX_Recv64F(2, 3, 12, -1);
 		
 		call_arg3_p3 = tan(theta_p3);
 		
@@ -917,22 +910,22 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 			double Slope_p3;
 			double chord_p3;
 			
-			DeltaTheta_p3 = EMX_Recv64F(2, 3, 16, -1);
+			DeltaTheta_p3 = EMX_Recv64F(2, 3, 15, -1);
 			
 			DeltaSlope_p3 = 3.14159265 / 2.0 - a_p3 - DeltaTheta_p3 / 2.0;
 			
 			Slope_p3 = theta_p3;
 			
-			EMX_Send64F(3, 2, 19, -1, Slope_p3);
+			EMX_Send64F(3, 2, 18, -1, Slope_p3);
 			
-			chord_p3 = EMX_Recv64F(2, 3, 18, -1);
+			chord_p3 = EMX_Recv64F(2, 3, 17, -1);
 			
-			EMX_Send64F(3, 2, 17, -1, DeltaSlope_p3);
+			EMX_Send64F(3, 2, 16, -1, DeltaSlope_p3);
 			
-			for (int i_p3 = 1; EMX_RecvSync(2, 3, 30, -1); i_p3 = i_p3 + 1) {
-				DeltaSlope_p3 = EMX_Recv64F(2, 3, 22, -1);
+			for (int i_p3 = 1; EMX_RecvSync(2, 3, 29, -1); i_p3 = i_p3 + 1) {
+				DeltaSlope_p3 = EMX_Recv64F(2, 3, 21, -1);
 				
-				PredX_p3 = EMX_Recv64F(2, 3, 21, -1);
+				PredX_p3 = EMX_Recv64F(2, 3, 20, -1);
 				
 				{
 					double DeltaX_p3;
@@ -941,9 +934,9 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 					
 					DeltaX_p3 = PredX_p3 + chord_p3 * call_arg21_p3;
 					
-					EMX_Send64F(3, 2, 23, -1, DeltaX_p3);
+					EMX_Send64F(3, 2, 22, -1, DeltaX_p3);
 					
-					Slope_p3 = EMX_Recv64F(2, 3, 20, -1);
+					Slope_p3 = EMX_Recv64F(2, 3, 19, -1);
 					
 					{
 						double A2_p3;
@@ -959,9 +952,9 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 						
 						call_arg23_p3 = pow(call_arg24_p3, 2.0);
 						
-						call_arg27_p3 = EMX_Recv64F(2, 3, 25, -1);
+						call_arg27_p3 = EMX_Recv64F(2, 3, 24, -1);
 						
-						call_arg25_p3 = EMX_Recv64F(2, 3, 24, -1);
+						call_arg25_p3 = EMX_Recv64F(2, 3, 23, -1);
 						
 						A2_p3 = -2 * DeltaX_p3 - 2 * call_arg25_p3 * call_arg26_p3 * DeltaX_p3;
 						
@@ -983,15 +976,15 @@ void TurningFlightPrediction_p3(float Clearance_p3) {
 						
 						ClearanceX_p3 = sol1_p3;
 						
-						EMX_Send64F(3, 2, 28, -1, ClearanceX_p3);
+						EMX_Send64F(3, 2, 27, -1, ClearanceX_p3);
 						
 						ClearanceX_p3 = sol2_p3;
 						
-						EMX_Send64F(3, 2, 29, -1, ClearanceX_p3);
+						EMX_Send64F(3, 2, 28, -1, ClearanceX_p3);
 						
-						EMX_Send64F(3, 2, 27, -1, sol2_p3);
+						EMX_Send64F(3, 2, 26, -1, sol2_p3);
 						
-						EMX_Send64F(3, 2, 26, -1, sol1_p3);
+						EMX_Send64F(3, 2, 25, -1, sol1_p3);
 					}
 				}
 			}

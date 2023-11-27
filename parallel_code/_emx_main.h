@@ -2,7 +2,7 @@
 #define __EMX_MAIN_H__
 
 #include "emxapi_defines.h"
-#include "emxapi_comm_ringbuf_fixed_fork.h"
+#include "emxapi_comm_ringbuf_thread.h"
 
 
 #ifdef __cplusplus

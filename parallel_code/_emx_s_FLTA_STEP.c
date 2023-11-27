@@ -81,13 +81,13 @@ point * step3Outline(point * envelope) {
 extern Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos position_p2, float Clearance_p2);
 extern Range * TurningFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos position_p2, float YawRate_p2, float Clearance_p2);
 Range * step1Outline_p2(Range * path_p2) {
-	_Bool sync31_p2;
+	_Bool sync30_p2;
 	
-	sync31_p2 = (FLTA_DATA.YawRate < 0.1 && FLTA_DATA.YawRate > -0.1);
+	sync30_p2 = (FLTA_DATA.YawRate < 0.1 && FLTA_DATA.YawRate > -0.1);
 	
-	EMX_SendSync(2, 3, 32, -1, sync31_p2);
+	EMX_SendSync(2, 3, 31, -1, sync30_p2);
 	
-	if (sync31_p2) {
+	if (sync30_p2) {
 		path_p2 = StraightFlightPrediction_p2(FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.RTC);
 	} else {
 		path_p2 = TurningFlightPrediction_p2(FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.YawRate, FLTA_DATA.RTC);
@@ -99,7 +99,7 @@ Range * step1Outline_p2(Range * path_p2) {
 extern void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3);
 extern void TurningFlightPrediction_p3(float Clearance_p3);
 void step1Outline_p3(void) {
-	if (EMX_RecvSync(2, 3, 32, -1)) {
+	if (EMX_RecvSync(2, 3, 31, -1)) {
 		StraightFlightPrediction_p3(FLTA_DATA.TrueTrack, FLTA_DATA.RTC);
 	} else {
 		TurningFlightPrediction_p3(FLTA_DATA.RTC);
@@ -138,7 +138,7 @@ void fltastep_p2() {
 	
 	OriginalLon_p2 = EMX_Recv32F(3, 2, 2, -1);
 	
-	EMX_Send(2, 3, 0, -1, &FLTA_DATA, sizeof(FLTA_DATA));
+	EMX_Signal(2, 3, 0, -1);
 	
 	{
 		Range * path_p2;
@@ -181,7 +181,7 @@ void fltastep_p3() {
 	
 	EMX_Send32F(3, 2, 2, -1, OriginalLon_p3);
 	
-	EMX_Recv(2, 3, 0, -1, &FLTA_DATA, sizeof(FLTA_DATA));
+	EMX_Wait(2, 3, 0, -1);
 	
 	step1Outline_p3();
 	
