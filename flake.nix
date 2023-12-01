@@ -8,7 +8,8 @@
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          pkgsCross = pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsStatic;
+          pkgsStatic = pkgs.pkgsStatic;
+          pkgsCrossStatic = pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsStatic;
 
           # generic build that takes a pkg set and builds the seq code
           build-qsma-seq = p:
@@ -41,10 +42,10 @@
         in
         {
           packages = rec {
-            qsma-sequential-native = build-qsma-seq pkgs;
-            qsma-sequential-cross = build-qsma-seq pkgsCross;
-            qsma-parallel-native = build-qsma-par pkgs;
-            qsma-parallel-cross = build-qsma-par pkgsCross;
+            qsma-sequential-native = build-qsma-seq pkgsStatic;
+            qsma-sequential-cross = build-qsma-seq pkgsCrossStatic;
+            qsma-parallel-native = build-qsma-par pkgsStatic;
+            qsma-parallel-cross = build-qsma-par pkgsCrossStatic;
           };
 
           devShells.default = pkgs.mkShell {
