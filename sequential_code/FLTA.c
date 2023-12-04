@@ -200,7 +200,7 @@ Range* TurningFlightPrediction(float Vground, float TrueTrack, Pos position, flo
     double rad = PI / 180.0;
     double PredY = 0;
     double PredX = 0;
-    double Alt = position.alt;
+   // double Alt = position.alt;
     double a = TrueTrack * rad;
     int LookAheadTime = CalculateLAT(Vground);
 
