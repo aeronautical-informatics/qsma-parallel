@@ -170,7 +170,7 @@ int init() {
 }
 
 extern int CalculateLAT(float Vground);
-void step2Outline(float OriginalLat, float OriginalLon, Range * path) {
+void step2Outline(float OriginalLat, float OriginalLon, Range path[100]) {
 	char fileName[100];
 	int call_arg;
 	int call_arg2;
@@ -198,13 +198,11 @@ void step2Outline(float OriginalLat, float OriginalLon, Range * path) {
 	sprintf(fileName, "%s%d%s%d%s", "N", call_arg, "W0", call_arg2, "_dem");
 }
 
-extern point * DescendEnvelopGeneration(int RTC, float Vground, Pos position, float VerticalSpeed);
-extern point * LevelEnvelopGeneration(int RTC, float Vground, Pos position);
-point * step3Outline(point * envelope) {
+extern void DescendEnvelopGeneration(point envelope[4], int RTC, float Vground, Pos position, float VerticalSpeed);
+extern void LevelEnvelopGeneration(point envelope[4], int RTC, float Vground, Pos position);
+void step3Outline(point envelope[4]) {
 	if (FLTA_DATA.VerticalSpeed < -1) {
-		printf("Descend\n");
-		
-		envelope = DescendEnvelopGeneration(FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position, FLTA_DATA.VerticalSpeed);
+		DescendEnvelopGeneration(envelope, FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position, FLTA_DATA.VerticalSpeed);
 		
 		{
 			char EnvelopePoints[1500] = "";
@@ -216,10 +214,11 @@ point * step3Outline(point * envelope) {
 			
 			strcat(EnvelopePoints, "\n\0");
 		}
+		printf("Descend\n");
 	} else {
 		printf("Level\n");
 		
-		envelope = LevelEnvelopGeneration(FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position);
+		LevelEnvelopGeneration(envelope, FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position);
 		
 		{
 			char EnvelopePoints[1500] = "";
@@ -234,26 +233,23 @@ point * step3Outline(point * envelope) {
 			printf("String: %s\n", EnvelopePoints);
 		}
 	}
-	
-	return envelope;
 }
 
-extern Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos position_p2, float Clearance_p2);
-extern Range * TurningFlightPrediction(float Vground, float TrueTrack, Pos position, float YawRate, float Clearance);
-Range * step1Outline_p2(Range * path_p2) {
+extern void StraightFlightPrediction_p2(Range path_p2[100], float Vground_p2, float TrueTrack_p2, Pos position_p2, float Clearance_p2);
+extern void TurningFlightPrediction(Range path[100], float Vground, float TrueTrack, Pos position, float YawRate, float Clearance);
+void step1Outline_p2(Range path_p2[100]) {
 	_Bool sync7_p2;
+	Range path_p22[100];
 	
 	sync7_p2 = (FLTA_DATA.YawRate < 0.1 && FLTA_DATA.YawRate > -0.1);
 	
 	EMX_SendSync(2, 3, 8, -1, sync7_p2);
 	
 	if (sync7_p2) {
-		path_p2 = StraightFlightPrediction_p2(FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.RTC);
+		StraightFlightPrediction_p2(path_p2, FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.RTC);
 	} else {
-		path_p2 = TurningFlightPrediction(FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.YawRate, FLTA_DATA.RTC);
+		TurningFlightPrediction(path_p2, FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.YawRate, FLTA_DATA.RTC);
 	}
-	
-	return path_p2;
 }
 
 extern void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3);
@@ -292,18 +288,18 @@ void fltastep_p2() {
 	EMX_Signal(2, 3, 0, -1);
 	
 	{
-		Range * path_p2;
+		Range path_p2[100];
 		
-		path_p2 = step1Outline_p2(path_p2);
+		step1Outline_p2(path_p2);
 		
 		EMX_Wait(3, 2, 1, -1);
 		
 		step2Outline(OriginalLat_p2, OriginalLon_p2, path_p2);
 		
 		{
-			point * envelope_p2;
+			point envelope_p2[4];
 			
-			envelope_p2 = step3Outline(envelope_p2);
+			step3Outline(envelope_p2);
 			
 			if (FLTA_DATA.VerticalSpeed < -1) {
 				call_arg3_p2 = 'd';

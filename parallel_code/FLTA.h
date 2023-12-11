@@ -62,13 +62,13 @@ extern INPUT EXT_INPUT;
 extern OUTPUT EXT_OUTPUT;
 
 //entry point functions
-extern void step(Pos position,float Vground,float VerticalSpeed, float RTC,float TrueTrack);
+extern void step(Range path[100], point envelope[4], Pos position,float Vground,float VerticalSpeed, float RTC,float TrueTrack);
 extern void terminate(void);
 
 
 int CalculateLAT(float Vground);
-Range * StraightFlightPrediction(float Vground, float TrueTrack, Pos position, float Clearance);
-Range * TurningFlightPrediction(float Vground, float TrueTrack, Pos position, float YawRate,float Clearance);
+void StraightFlightPrediction(Range path[100], float Vground, float TrueTrack, Pos position, float Clearance);
+void TurningFlightPrediction(Range path[100], float Vground, float TrueTrack, Pos position, float YawRate,float Clearance);
 void LateralEnvelopGeneration(Vned speed, float TrueTrack, Pos position, float YawRate, int LookAheadTime, float Clearance);
 void AltitudeLostDuringPullupManeuver(double GForce, Vned speed);
 void AltitudeLostDueToPilotDelay(int PilotResponseTime1, Vned speed);
@@ -86,8 +86,8 @@ double xMeter(double lat,double lon);
 double yMeter(double lat);
 double xMeterI(double lat,double lon);
 double yMeterI(double lat);
-point * LevelEnvelopGeneration(int RTC, float Vground,Pos position);
-point * DescendEnvelopGeneration(int RTC, float Vground, Pos, float VerticalSpeed);
+void LevelEnvelopGeneration(point envelope[4], int RTC, float Vground,Pos position);
+void DescendEnvelopGeneration(point envelope[4], int RTC, float Vground, Pos, float VerticalSpeed);
 int intersection(Range path[], point envelope[], float Vground, char type);
 int LevelOrDescent(float VerticalSpeed);
 

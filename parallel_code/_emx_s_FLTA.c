@@ -77,7 +77,7 @@ float VectorAngleCosine(float u1, float u2, float v1, float v2) {
 	return dot / (u * v);
 }
 
-Range * TurningFlightPrediction(float Vground, float TrueTrack, Pos position, float YawRate, float Clearance) {
+void TurningFlightPrediction(Range path[100], float Vground, float TrueTrack, Pos position, float YawRate, float Clearance) {
 	double rad = 3.14159265 / 180.0;
 	double PredY = 0;
 	double PredX = 0;
@@ -126,7 +126,6 @@ Range * TurningFlightPrediction(float Vground, float TrueTrack, Pos position, fl
 	Vground = Vground * 0.514444;
 	
 	{
-		static Range path[100];
 		point container;
 		
 		container.X = PredX + position.lon;
@@ -334,8 +333,6 @@ Range * TurningFlightPrediction(float Vground, float TrueTrack, Pos position, fl
 						}
 					}
 				}
-				
-				return path;
 			}
 		}
 	}
@@ -344,7 +341,7 @@ Range * TurningFlightPrediction(float Vground, float TrueTrack, Pos position, fl
 void LateralEnvelopGeneration(Vned speed, float TrueTrack, Pos position, float YawRate, int LookAheadTime, float Clearance) {
 }
 
-point * LevelEnvelopGeneration(int RTC, float Vground, Pos position) {
+void LevelEnvelopGeneration(point envelope[4], int RTC, float Vground, Pos position) {
 	int call_arg;
 	float call_arg2;
 	
@@ -371,19 +368,13 @@ point * LevelEnvelopGeneration(int RTC, float Vground, Pos position) {
 		B.Y = A.Y;
 		C.X = B.X;
 		C.Y = position.alt;
-		
-		{
-			static point envelope[4];
-			
-			envelope[0] = A;
-			envelope[1] = B;
-			envelope[2] = C;
-			return envelope;
-		}
+		envelope[0] = A;
+		envelope[1] = B;
+		envelope[2] = C;
 	}
 }
 
-point * DescendEnvelopGeneration(int RTC, float Vground, Pos position, float VerticalSpeed) {
+void DescendEnvelopGeneration(point envelope[4], int RTC, float Vground, Pos position, float VerticalSpeed) {
 	int call_arg;
 	
 	Vground = Vground * 0.514444;
@@ -413,16 +404,10 @@ point * DescendEnvelopGeneration(int RTC, float Vground, Pos position, float Ver
 		C.Y = B.Y;
 		D.X = C.X;
 		D.Y = position.alt;
-		
-		{
-			static point envelope[4];
-			
-			envelope[0] = A;
-			envelope[1] = B;
-			envelope[2] = C;
-			envelope[3] = D;
-			return envelope;
-		}
+		envelope[0] = A;
+		envelope[1] = B;
+		envelope[2] = C;
+		envelope[3] = D;
 	}
 }
 
@@ -539,7 +524,7 @@ int LevelOrDescent(float VerticalSpeed) {
 	return 1;
 }
 
-void step(Pos position, float Vground, float VerticalSpeed, float RTC, float TrueTrack) {
+void step(Range path[100], point envelope[4], Pos position, float Vground, float VerticalSpeed, float RTC, float TrueTrack) {
 	double call_arg;
 	double call_arg2;
 	double call_arg3;
@@ -548,12 +533,12 @@ void step(Pos position, float Vground, float VerticalSpeed, float RTC, float Tru
 	double call_arg6;
 	double call_arg7;
 	double call_arg8;
-	Range * call_arg9;
-	double call_arg10;
+	double call_arg9;
+	int call_arg10;
 	int call_arg11;
-	point * call_arg12;
-	int call_arg13;
-	int call_arg14;
+	int call_arg12;
+	int i;
+	_Bool cond;
 	
 	call_arg = xMeter(position.lat, position.lon);
 	
@@ -579,76 +564,65 @@ void step(Pos position, float Vground, float VerticalSpeed, float RTC, float Tru
 	
 	printf("%f\n", call_arg7);
 	
+	call_arg9 = 5.85;
+	
+	TurningFlightPrediction(path, Vground, TrueTrack, position, call_arg9, RTC);
+	
+	i = 0;
+	
+	call_arg10 = CalculateLAT(Vground);
+	
+	cond = (i < call_arg10 + 1);
+	
+	for (; cond; ) {
+		printf("%f", path[i].center.X);
+		
+		printf(", ");
+		
+		printf("%f", path[i].center.Y);
+		
+		printf(";\n");
+		
+		printf("%f", path[i].limit1.X);
+		
+		printf(", ");
+		
+		printf("%f", path[i].limit1.Y);
+		
+		printf(";\n");
+		
+		printf("%f", path[i].limit2.X);
+		
+		printf(", ");
+		
+		printf("%f", path[i].limit2.Y);
+		
+		printf(";\n");
+		
+		i = i + 1;
+		
+		call_arg10 = CalculateLAT(Vground);
+		
+		cond = (i < call_arg10 + 1);
+	}
+	
+	LevelEnvelopGeneration(envelope, RTC, Vground, position);
+	
 	{
-		Range * path;
-		int i;
-		_Bool cond;
+		int result;
 		
-		call_arg10 = 5.85;
+		call_arg12 = 'l';
 		
-		call_arg9 = TurningFlightPrediction(Vground, TrueTrack, position, call_arg10, RTC);
+		call_arg11 = intersection(path, envelope, Vground, call_arg12);
 		
-		path = call_arg9;
+		result = call_arg11;
 		
-		i = 0;
-		
-		call_arg11 = CalculateLAT(Vground);
-		
-		cond = (i < call_arg11 + 1);
-		
-		for (; cond; ) {
-			printf("%f", path[i].center.X);
-			
-			printf(", ");
-			
-			printf("%f", path[i].center.Y);
-			
-			printf(";\n");
-			
-			printf("%f", path[i].limit1.X);
-			
-			printf(", ");
-			
-			printf("%f", path[i].limit1.Y);
-			
-			printf(";\n");
-			
-			printf("%f", path[i].limit2.X);
-			
-			printf(", ");
-			
-			printf("%f", path[i].limit2.Y);
-			
-			printf(";\n");
-			
-			i = i + 1;
-			
-			call_arg11 = CalculateLAT(Vground);
-			
-			cond = (i < call_arg11 + 1);
-		}
-		
-		{
-			point * envelope;
-			int result;
-			
-			call_arg12 = LevelEnvelopGeneration(RTC, Vground, position);
-			
-			envelope = call_arg12;
-			
-			call_arg14 = 'l';
-			
-			call_arg13 = intersection(path, envelope, Vground, call_arg14);
-			
-			result = call_arg13;
-			
-			if (result == 1) {
-			}
+		if (result == 1) {
 		}
 	}
 }
 
-Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos position_p2, float Clearance_p2) {
+void StraightFlightPrediction_p2(Range path_p2[100], float Vground_p2, float TrueTrack_p2, Pos position_p2, float Clearance_p2) {
 	double rad_p2 = 3.14159265 / 180.0;
 	int call_arg_p2;
 	float a_p2 = TrueTrack_p2 * rad_p2;
@@ -686,7 +660,6 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 	{
 		double StraightDis_p2 = Vground_p2 * LookAheadTime_p2;
 		point container_p2;
-		static Range path_p2[100];
 		
 		container_p2.X = 0;
 		container_p2.Y = 0;
@@ -747,9 +720,9 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 			Slope_p2 = EMX_Recv64F(3, 2, 4, -1);
 			
 			
-			EMX_Send(2, 3, 3, -1, path_p2, 100 * sizeof(*path_p2));
+			EMX_Send(2, 3, 3, -1, &container_p2, sizeof(container_p2));
 			
-			EMX_Send(2, 3, 2, -1, &container_p2, sizeof(container_p2));
+			EMX_Send(2, 3, 2, -1, path_p2, 100 * sizeof(*path_p2));
 			
 			EMX_Recv(3, 2, 5, -1, &container_p2, sizeof(container_p2));
 			
@@ -857,13 +830,12 @@ Range * StraightFlightPrediction_p2(float Vground_p2, float TrueTrack_p2, Pos po
 				path_p2[i_p2].limit2.X = path_p2[i_p2].limit2.X + position_p2.lon;
 				path_p2[i_p2].limit2.Y = path_p2[i_p2].limit2.Y + position_p2.lat;
 			}
-			
-			return path_p2;
 		}
 	}
 }
 
 void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
+	Range path_p3[100];
 	double rad_p3 = 3.14159265 / 180.0;
 	double call_arg10_p3;
 	double call_arg11_p3;
@@ -880,7 +852,6 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 	double call_arg21_p3;
 	double call_arg23_p3;
 	double call_arg24_p3;
-	static Range path_p3[100];
 	point container_p3;
 	_Bool cond22_p3;
 	double Slope_p3 = 3.14159265 - TrueTrack_p3 * rad_p3;
@@ -903,9 +874,9 @@ void StraightFlightPrediction_p3(float TrueTrack_p3, float Clearance_p3) {
 	
 	cond_p3 = cond3_p3;
 	
-	EMX_Recv(2, 3, 3, -1, path_p3, 100 * sizeof(*path_p3));
+	EMX_Recv(2, 3, 3, -1, &container_p3, sizeof(container_p3));
 	
-	EMX_Recv(2, 3, 2, -1, &container_p3, sizeof(container_p3));
+	EMX_Recv(2, 3, 2, -1, path_p3, 100 * sizeof(*path_p3));
 	
 	if (cond_p3) {
 		double ClearanceY_p3 = path_p3[0].center.Y + Clearance_p3;

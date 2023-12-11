@@ -17,9 +17,9 @@
 int data_number;
 INPUT FLTA_DATA;
 
-Range * step1Outline(Range * path);
-void step2Outline(float OriginalLat, float OriginalLon, Range * path);
-point * step3Outline(point *envelope);
+void step1Outline(Range path[100]);
+void step2Outline(float OriginalLat, float OriginalLon, Range path[100]);
+void step3Outline(point envelope[4]);
 
 int init(){
 	//Loading elevation files into memory
@@ -124,7 +124,7 @@ int fltastep() {
 	float OriginalLat=FLTA_DATA.position.lat;
 	FLTA_DATA.position.lon = xMeter(FLTA_DATA.position.lat, FLTA_DATA.position.lon) * 1000.0;
 	FLTA_DATA.position.lat = yMeter(FLTA_DATA.position.lat) * 1000.0;
-	Range * path;
+	Range path[100];
 
 
 
@@ -138,7 +138,7 @@ int fltastep() {
 
 	//Step 1 getting the lateral prediction points
 
-	path = step1Outline(path);
+	step1Outline(path);
 
 //	if ((FLTA_DATA.YawRate < 0.1) && (FLTA_DATA.YawRate > -0.1)) {
 //		path = StraightFlightPrediction(FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.RTC);
@@ -188,8 +188,8 @@ int fltastep() {
 	*/
 
 	//Step 3 getting the vertical envelope that supposed to be clear and sending it for plotting
-	point *envelope;
-	envelope = step3Outline(envelope);
+	point envelope[4];
+	step3Outline(envelope);
 
 
 	//Step 4 intersect the path with the envelope
@@ -199,17 +199,15 @@ int fltastep() {
 		intersection(path, envelope, FLTA_DATA.Vground, 'l');
 }
 
-Range * step1Outline(Range * path) {
+void step1Outline(Range path[100]) {
 	if ((FLTA_DATA.YawRate < 0.1) && (FLTA_DATA.YawRate > -0.1)) {
-		path = StraightFlightPrediction(FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.RTC);
+		StraightFlightPrediction(path, FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position, FLTA_DATA.RTC);
 	}else{
-		path = TurningFlightPrediction(FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position,FLTA_DATA.YawRate, FLTA_DATA.RTC);
+		TurningFlightPrediction(path, FLTA_DATA.Vground, FLTA_DATA.TrueTrack, FLTA_DATA.position,FLTA_DATA.YawRate, FLTA_DATA.RTC);
 	}
-
-	return path;
 }
 
-void step2Outline(float OriginalLat, float OriginalLon, Range * path) {
+void step2Outline(float OriginalLat, float OriginalLon, Range path[100]) {
 	char fileName[100];
 	sprintf(fileName,"%s%d%s%d%s","N",(int)floor(OriginalLat),"W0",(int)abs(floor(OriginalLon)),"_dem");
 
@@ -217,10 +215,10 @@ void step2Outline(float OriginalLat, float OriginalLon, Range * path) {
 	fflush(stdout);
 }
 
-point * step3Outline(point *envelope) {
+void step3Outline(point envelope[4]) {
 	if (FLTA_DATA.VerticalSpeed<-1) {
 			printf("Descend\n");
-			envelope = DescendEnvelopGeneration(FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position, FLTA_DATA.VerticalSpeed);
+			DescendEnvelopGeneration(envelope, FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position, FLTA_DATA.VerticalSpeed);
 
 			//////////The C Version
 			char EnvelopePoints[1500]="";
@@ -243,7 +241,7 @@ point * step3Outline(point *envelope) {
 		}else
 		{
 			printf("Level\n");
-			envelope = LevelEnvelopGeneration(FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position);
+			LevelEnvelopGeneration(envelope, FLTA_DATA.RTC, FLTA_DATA.Vground, FLTA_DATA.position);
 
 			//////////The C Version
 			char EnvelopePoints[1500]="";
@@ -264,6 +262,4 @@ point * step3Outline(point *envelope) {
 			///////////////////////
 
 		}
-
-	return envelope;
 }

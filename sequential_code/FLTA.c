@@ -76,14 +76,14 @@ float VectorAngleCosine(float u1, float u2, float v1, float v2)
     return dot / (u * v);
 }
 
-Range* StraightFlightPrediction(float Vground, float TrueTrack, Pos position, float Clearance) {
+void StraightFlightPrediction(Range path[100], float Vground, float TrueTrack, Pos position, float Clearance) {
     double rad = PI / 180.0;
     float a = TrueTrack * rad;
     int LookAheadTime = CalculateLAT(Vground);
     Vground = Vground * 0.514444; // Convert from knots to meters per second
     double StraightDis = Vground * LookAheadTime;
 
-    static Range path[100];
+    //static Range path[100];
     point container;
 
     // Initialize the center position
@@ -192,11 +192,9 @@ Range* StraightFlightPrediction(float Vground, float TrueTrack, Pos position, fl
         path[i].limit2.X += position.lon;
         path[i].limit2.Y += position.lat;
     }
-
-    return path;
 }
 
-Range* TurningFlightPrediction(float Vground, float TrueTrack, Pos position, float YawRate, float Clearance) {
+void TurningFlightPrediction(Range path[100], float Vground, float TrueTrack, Pos position, float YawRate, float Clearance) {
     double rad = PI / 180.0;
     double PredY = 0;
     double PredX = 0;
@@ -206,7 +204,6 @@ Range* TurningFlightPrediction(float Vground, float TrueTrack, Pos position, flo
 
     Vground = Vground * 0.514444; // Convert from knots to meters per second
 
-    static Range path[100];
     point container;
     container.X = PredX + position.lon;
     container.Y = PredY + position.lat;
@@ -285,8 +282,6 @@ Range* TurningFlightPrediction(float Vground, float TrueTrack, Pos position, flo
         path[i].limit2 = container;
         path[i].distance = DeltaArch * i;
     }
-
-    return path;
 }
 
 //Intermediate-level functions
@@ -370,7 +365,7 @@ void LateralEnvelopGeneration(Vned speed, float TrueTrack, Pos position, float Y
 	*/
 }
 
-point* LevelEnvelopGeneration(int RTC, float Vground, Pos position) {
+void LevelEnvelopGeneration(point envelope[4], int RTC, float Vground, Pos position) {
     Vground = Vground * 0.514444; // Convert from knots to meters per second
     int LookAheadTime = CalculateLAT(Vground);
 
@@ -385,15 +380,13 @@ point* LevelEnvelopGeneration(int RTC, float Vground, Pos position) {
     C.X = B.X;
     C.Y = position.alt;
 
-    static point envelope[4];
     envelope[0] = A;
     envelope[1] = B;
     envelope[2] = C;
 
-    return envelope;
 }
 
-point* DescendEnvelopGeneration(int RTC, float Vground, Pos position, float VerticalSpeed) {
+void DescendEnvelopGeneration(point envelope[4], int RTC, float Vground, Pos position, float VerticalSpeed) {
     Vground = Vground * 0.514444; // Convert from knots to meters per second
     int LookAheadTime = CalculateLAT(Vground);
 
@@ -420,13 +413,10 @@ point* DescendEnvelopGeneration(int RTC, float Vground, Pos position, float Vert
     D.X = C.X;
     D.Y = position.alt;
 
-    static point envelope[4];
     envelope[0] = A;
     envelope[1] = B;
     envelope[2] = C;
     envelope[3] = D;
-
-    return envelope;
 }
 
 int intersection(Range path[100], point envelope[100], float Vground, char type) {
@@ -542,7 +532,7 @@ int LevelOrDescent(float VerticalSpeed)
     return 1; //Descent flight
 }
 
-void step(Pos position, float Vground, float VerticalSpeed, float RTC, float TrueTrack) {
+void step(Range path[100], point envelope[4], Pos position, float Vground, float VerticalSpeed, float RTC, float TrueTrack) {
     // Every second, do this
 
     // Get the plane position and transform it to our framework of km then meters
@@ -552,7 +542,7 @@ void step(Pos position, float Vground, float VerticalSpeed, float RTC, float Tru
     printf("%f\n", yMeterI(position.lat / 1000.0));
 
     // Calculate the flight path
-    Range *path = TurningFlightPrediction(Vground, TrueTrack, position, 5.85, RTC);
+   TurningFlightPrediction(path, Vground, TrueTrack, position, 5.85, RTC);
 
     for (int i = 0; i < CalculateLAT(Vground) + 1; i++) {
         printf("%f", path[i].center.X);
@@ -572,7 +562,7 @@ void step(Pos position, float Vground, float VerticalSpeed, float RTC, float Tru
     }
 
     // Generate the envelope
-    point *envelope = LevelEnvelopGeneration(RTC, Vground, position);
+   LevelEnvelopGeneration(envelope, RTC, Vground, position);
 
     // Perform intersection check
     int result = intersection(path, envelope, Vground, 'l');  // Check for intersection with level envelope
