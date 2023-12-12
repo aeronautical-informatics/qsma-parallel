@@ -191,9 +191,9 @@ void step2Outline(float OriginalLat, float OriginalLon, Range path[100]) {
 	
 	call_arg = (int)call_arg3;
 	
-	getElevFile(FLTA_DATA.elevationData, path, call_arg6, data_number);
-	
 	fflush(stdout);
+	
+	getElevFile(FLTA_DATA.elevationData, path, call_arg6, data_number);
 	
 	sprintf(fileName, "%s%d%s%d%s", "N", call_arg, "W0", call_arg2, "_dem");
 }
