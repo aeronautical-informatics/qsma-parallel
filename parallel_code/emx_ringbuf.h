@@ -7,8 +7,10 @@
 #define	EMX_RINGBUF_IMPL_C11			0
 #define	EMX_RINGBUF_IMPL_CPP11		1
 #define	EMX_RINGBUF_IMPL_VOLATILE	2
+#define	EMX_RINGBUF_IMPL_ARM_ATOMIC	3
 
-#define	EMX_RINGBUF_IMPL		EMX_RINGBUF_IMPL_VOLATILE
+#define	EMX_RINGBUF_IMPL		EMX_RINGBUF_IMPL_ARM_ATOMIC
+
 
 #if EMX_RINGBUF_IMPL == EMX_RINGBUF_IMPL_C11
 
@@ -31,6 +33,15 @@
 	#define		EMX_ATOMICREAD(x)			x
 	#define		EMX_ATOMICWRITE(x,y)		x = y
 	#define		EMX_ATOMICDECLARE(x)		volatile x
+
+#elif EMX_RINGBUF_IMPL == EMX_RINGBUF_IMPL_ARM_ATOMIC
+
+	static inline uint32_t arm_atomic_load(uint32_t *ptr);
+	static inline void arm_atomic_store(uint32_t *ptr, uint32_t value);
+
+	#define		EMX_ATOMICREAD(x)			arm_atomic_load(&x)
+	#define		EMX_ATOMICWRITE(x,y)		arm_atomic_store(&x, y)
+	#define		EMX_ATOMICDECLARE(x)		x
 
 #else
 	#error		Invalid EMX_RINGBUF_IMPL
@@ -172,13 +183,12 @@ void emx_ringbuf_writelarge(emx_ringbuf_t* rb, const void *buf, emx_ringbuf_size
 
 #define EMX_RINGBUF_WRITEIMPL(SIZE, TYPE)                          \
 	emx_ringbuf_size_t wr_pos = rb->wr_pos;                        \
-                                                                   \
 	while (emx_ringbuf_full2(EMX_ATOMICREAD(rb->rd_pos), wr_pos))  \
 		emx_ringbuf_wait();                                        \
-                                                                   \
 	*(TYPE*)(rb->buf + wr_pos) = val;                              \
                                                                    \
-	EMX_ATOMICWRITE(rb->wr_pos, emx_ringbuf_inc(wr_pos, 1));
+																   \
+	EMX_ATOMICWRITE(rb->wr_pos, emx_ringbuf_inc(wr_pos, 1));       
 
 static inline uint8_t emx_ringbuf_read8(emx_ringbuf_t* rb) {
 	EMX_RINGBUF_READIMPL(1, uint8_t)
@@ -273,5 +283,30 @@ static inline void emx_ringbuf_write(emx_ringbuf_t* rb, emx_ringbuf_t* rb_back, 
 	emx_ringbuf_read8(rb_back);
 #endif
 }
+
+#ifdef EMX_RINGBUF_IMPL_ARM_ATOMIC
+
+static inline uint32_t arm_atomic_load(uint32_t* ptr) {
+    uint32_t value;
+    __asm__ volatile (
+        "ldxr %w0, [%1]"
+        : "=r" (value)
+        : "r" (ptr)
+        : "memory"
+    );
+    return value;
+}
+
+// Atomic Store
+static inline void arm_atomic_store(uint32_t* ptr, uint32_t value) {
+    __asm__ volatile (
+        "stlr %w1, [%0]"
+        :
+        : "r" (ptr), "r" (value)
+        : "memory"
+    );
+}
+
+#endif
 
 #endif
