@@ -7,9 +7,18 @@
 #define	EMX_RINGBUF_IMPL_C11			0
 #define	EMX_RINGBUF_IMPL_CPP11		1
 #define	EMX_RINGBUF_IMPL_VOLATILE	2
-#define	EMX_RINGBUF_IMPL_ARM_ATOMIC	3
 
-#define	EMX_RINGBUF_IMPL		EMX_RINGBUF_IMPL_ARM_ATOMIC
+#ifdef __ARM_ARCH
+
+	#define __uint128_t uint64_t
+	#define	EMX_RINGBUF_IMPL_ARM_ATOMIC	3
+	#define	EMX_RINGBUF_IMPL		EMX_RINGBUF_IMPL_ARM_ATOMIC
+	
+#else 
+
+	#define	EMX_RINGBUF_IMPL		EMX_RINGBUF_IMPL_C11
+
+#endif
 
 
 #if EMX_RINGBUF_IMPL == EMX_RINGBUF_IMPL_C11
@@ -289,7 +298,7 @@ static inline void emx_ringbuf_write(emx_ringbuf_t* rb, emx_ringbuf_t* rb_back, 
 static inline uint32_t arm_atomic_load(uint32_t* ptr) {
     uint32_t value;
     __asm__ volatile (
-        "ldxr %w0, [%1]"
+        "ldxr %0, [%1]"
         : "=r" (value)
         : "r" (ptr)
         : "memory"
@@ -300,7 +309,7 @@ static inline uint32_t arm_atomic_load(uint32_t* ptr) {
 // Atomic Store
 static inline void arm_atomic_store(uint32_t* ptr, uint32_t value) {
     __asm__ volatile (
-        "stlr %w1, [%0]"
+        "stlr %1, [%0]"
         :
         : "r" (ptr), "r" (value)
         : "memory"
