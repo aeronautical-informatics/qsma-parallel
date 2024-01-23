@@ -13,6 +13,7 @@
 #define READ 0
 #define WRITE 1
 
+extern point ElevationData[];
 
 int data_number;
 INPUT FLTA_DATA;
@@ -23,98 +24,8 @@ void step3Outline(point envelope[4]);
 
 int init(){
 	//Loading elevation files into memory
-	FLTA_DATA.elevationData = (point*) malloc(12967202 * sizeof(point));
-	int fd = open(FLTA_DATA.fileName, O_RDONLY);
-	if (fd == -1)
-	{
-			perror("Error opening file desc");
-			return 1;
-	}
-
-	FILE *file = fdopen(fd, "r");
-	if (file == NULL) {
-		perror("Error converting file descriptor to FILE *");
-		close(fd);
-		return 1;
-	}
-
-	// Convert the file descriptor to a FILE * stream
-	file = fdopen(fd, "r");
-	if (file == NULL) {
-	   perror("Error converting file descriptor to FILE *");
-	   close(fd);
-	   return 1;
-	}
-
-	struct stat st;
-	if (fstat(fd, &st) != 0) {
-		perror("Error getting file size");
-		close(fd);
-		return 1;
-	}
-	//printf("filesize %lld\n",st.st_size);
-
-	char *buffer = (char*)malloc(580417193);
-	if (buffer == NULL) {
-		perror("malloc failed");
-		return 1;
-	}
-	int total_bytes_read = 0;
-	char chunk[8192];
-	while (total_bytes_read < 580417193) {
-		int n_read = read(fd, chunk, 8192);
-
-		// Check for end of file or error
-		if (n_read <= 0) {
-			if (n_read == 0) {
-				// EOF reached
-				break;
-			} else {
-				perror("Error reading from file");
-				free(buffer);
-				return 1;
-			}
-		}
-
-		// Copy the chunk to the main buffer
-		if (total_bytes_read + n_read > 580417193) {
-			// This ensures you don't overflow your buffer if for some reason
-			// the file has more data than you expect.
-			n_read = 580417193 - total_bytes_read;
-		}
-		memcpy(buffer + total_bytes_read, chunk, n_read);
-
-		total_bytes_read += n_read;
-	}
-
-	printf("%c", buffer[580417189]);
-	printf("%c", buffer[580417190]);
-	printf("%c\n", buffer[580417191]);
-
-
-
-	char* line = get_line_from_buffer(buffer, 12967201);
-	if (line) {
-		printf("Line %d: %s\n", 12967201, line);
-		free(line);  // Remember to free the dynamically allocated memory for the line
-	} else {
-		printf("Failed to retrieve line %d from buffer.\n", 12967201);
-	}
-
-
-	//populate the elevation data into structured memory
-	if (FLTA_DATA.elevationData == NULL) {
-		perror("lines malloc failed");
-		return 1;
-	}
-	data_number=process_each_line(buffer,FLTA_DATA.elevationData);
-	free(buffer);
-	printf("Number of Elevation Data %d\n",data_number);
-	printf("%f\n",FLTA_DATA.elevationData[1].Z);
-
-	 /////////////Plotting Implementation////////////////////
-	    //int sock=PlotServer();
-	    int client_fd,valread;
+	FLTA_DATA.elevationData =  ElevationData;
+	data_number = 12967201; // TODO should this be hardcoded?
 }
 
 int fltastep() {

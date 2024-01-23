@@ -5,6 +5,7 @@ CFLAGS := -lm
 CXXFLAGS :=
 DBGFLAGS := -g
 COBJFLAGS := $(CFLAGS) -c
+7ZIP := 7z
 
 # path macros
 BIN_PATH := bin
@@ -22,6 +23,7 @@ TARGET_DEBUG := $(DBG_PATH)/$(TARGET_NAME)
 
 # src files & obj files
 SRC := $(foreach x, $(SRC_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
+SRC := $(patsubst %.c.xz, %.c, $(SRC))
 OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
 OBJ_DEBUG := $(addprefix $(DBG_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
 
@@ -39,14 +41,17 @@ default: makedir all
 $(TARGET): $(OBJ)
 	$(CC) -o $@ $(OBJ) $(CFLAGS)
 
-$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
+$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c
 	$(CC) $(COBJFLAGS) -o $@ $<
 
-$(DBG_PATH)/%.o: $(SRC_PATH)/%.c*
+$(DBG_PATH)/%.o: $(SRC_PATH)/%.c
 	$(CC) $(COBJFLAGS) $(DBGFLAGS) -o $@ $<
 
 $(TARGET_DEBUG): $(OBJ_DEBUG)
 	$(CC) $(CFLAGS) $(DBGFLAGS) $(OBJ_DEBUG) -o $@
+
+$(SRC_PATH)/%.c: $(SRC_PATH)/%.c.xz
+	$(7ZIP) x $<
 
 # phony rules
 .PHONY: makedir

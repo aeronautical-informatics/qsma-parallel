@@ -16,6 +16,7 @@
             p.stdenv.mkDerivation rec {
               name = "qsma_sequential";
               src = ./sequential_code;
+              nativeBuildInputs = with pkgs; [ p7zip ];
               installPhase = ''
                 runHook preInstall
 
@@ -30,6 +31,7 @@
           build-qsma-par = p: p.stdenv.mkDerivation rec {
             name = "qsma_parallel";
             src = ./parallel_code;
+            nativeBuildInputs = with pkgs; [ p7zip ];
             installPhase = ''
               runHook preInstall
 
@@ -51,6 +53,7 @@
           devShells.default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
               qemu
+              p7zip
             ];
           };
 
