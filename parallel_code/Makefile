@@ -31,8 +31,8 @@ run: $(NAME)
 %.o: %.cpp $(H_FILES)
 	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
 	
-loadData.c: loadData.c.xz
-	$(7ZIP) x $
+loadData.c: ./loadData.c.xz
+	$(7ZIP) x $<
 
 clean:
 	rm -f *.o FLTA
